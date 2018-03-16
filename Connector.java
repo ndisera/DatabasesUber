@@ -7,9 +7,9 @@ public class Connector {
 	public Statement stmt;
 	public Connector() throws Exception {
 		try{
-		 	String userName = "5530user";
-	   		String password = "5530@18";
-	        	String url = "jdbc:mysql://georgia.eng.utah.edu/cs5530db";
+		 	String userName = "5530u34";
+	   		String password = "rqc47p62";
+	        	String url = "jdbc:mysql://georgia.eng.utah.edu/5530db34";
 		        Class.forName ("com.mysql.jdbc.Driver").newInstance ();
         		con = DriverManager.getConnection (url, userName, password);
 
