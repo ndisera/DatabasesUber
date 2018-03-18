@@ -47,7 +47,7 @@ public class testdriver2 {
 	            		 
 	            		 continue;
 	            	 }
-	            	 if (c<1 | c>3)
+	            	 if (c<1 | c>3) // TODO Updated to reflect the number of options we will have 
 	            		 continue;
 	            	 if (c==1)
 	            	 {
