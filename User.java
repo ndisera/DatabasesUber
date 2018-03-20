@@ -36,10 +36,12 @@ public class User
 		try
 		{
 			rsLogin = this.stmt.executeQuery(sqlLoginOfFeedback);
-			if (rsLogin != null)
+
+			if (rsLogin.next())
 				loginOutput = String.format("%s", rsLogin.getString("login"));
 			else 
 				return "Feedback does not exist.";
+//			System.out.println(loginOutput);
 			rsLogin.close();
 
 			if (loginOutput == this.login)
@@ -48,6 +50,7 @@ public class User
 		} catch (Exception e)
 		{
 			System.out.println("cannot execute the query");
+			 e.printStackTrace(System.out);
 		} finally
 		{
 			freeResultSetResources(rsLogin);
@@ -55,21 +58,23 @@ public class User
 
 		String sql = String.format("insert into rates values('%s', %d, %d)", this.login, fid, rating);
 		String output = "";
-		int rs = 0;
+		int rs;
 		System.out.println("executing " + sql);
 		try
 		{
 			rs = this.stmt.executeUpdate(sql);
-			if (rs != 0)
-				output = String.format("Feedback %d was rated %d by %s", fid, rating, this.login);
+			if (rs > 0)
+				output = String.format("Feedback %d was rated %d by %s\n", fid, rating, this.login);
 			else
-				output = "Rating couldn't be inserted.";
+				output = "Rating couldn't be inserted.\n";
 			
 		} catch (Exception e)
 		{
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		}
-		
+
+//		System.out.println(output);
 		return output;
 	}
 
