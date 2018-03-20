@@ -310,7 +310,7 @@ public class testdriver2 {
 			switch(c) {
 			case 1:
 				// proceed as user
-				handleUserMenu();
+				handleUserMenu(null);
 				break;
 			case 2:
 				// proceed as driver
@@ -329,9 +329,10 @@ public class testdriver2 {
 	
 	/**
 	 * User options
+	 * @param uu 
 	 * @throws IOException
 	 */
-	public static void handleUserMenu() throws IOException {
+	public static void handleUserMenu(User uu) throws IOException {
 		int c = 0;
 		String choice;
 		boolean level = true;
@@ -359,7 +360,8 @@ public class testdriver2 {
 				// record feedback for a car
 				break;
 			case 5:
-				// rate feedback usefulness
+				// TODO rate feedback usefulness
+				uu.rateUsefulness(4, 2);
 				break;
 			case 6:
 				// edit trusted users
@@ -496,10 +498,11 @@ public class testdriver2 {
 					while ((password = in.readLine()) == null && password.length() == 0)
 						;
 					
-					// then actually login
+					// TODO then actually login
+					User uu = new User(username, password, con.stmt); 
 					
 					// display user menu if user
-					handleUserMenu();
+					handleUserMenu(uu);
 					// display driver menu if driver
 					handleDriverMenu();
 					// display login menu if both
@@ -514,7 +517,7 @@ public class testdriver2 {
 					con.stmt.close();
 					break;
 				default:
-					System.out.println("You're input didn't match any of the choices");
+					System.out.println("Your input didn't match any of the choices");
 					break;
 				}
 
