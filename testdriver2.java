@@ -55,7 +55,7 @@ public class testdriver2 {
 	}
 
 	public static void main(String[] args) {
-		Connector con = null;
+		Connector2 con = null;
 		String choice;
 		String cname;
 		String dname;
@@ -63,7 +63,7 @@ public class testdriver2 {
 		int c = 0;
 		try {
 			// remember to replace the password
-			con = new Connector();
+			con = new Connector2();
 			System.out.println("Database connection established");
 
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
@@ -101,7 +101,8 @@ public class testdriver2 {
 				
 				// Nico End
 				
-				if (c == 1) {
+				if (c == 1) 
+				{
 					System.out.println("please enter a cname:");
 					while ((cname = in.readLine()) == null && cname.length() == 0)
 						;
@@ -110,15 +111,27 @@ public class testdriver2 {
 						;
 					Course course = new Course();
 					System.out.println(course.getCourse(cname, dname, con.stmt));
-				} else if (c == 2) {
-					 System.out.println("please enter your query below:"); while ((sql =
-					 in.readLine()) == null && sql.length() == 0) System.out.println(sql);
-					 ResultSet rs=con.stmt.executeQuery(sql); ResultSetMetaData rsmd =
-					 rs.getMetaData(); int numCols = rsmd.getColumnCount(); while (rs.next()) {
-					 System.out.print("cname:"); for (int i=1; i<=numCols;i++)
-					 System.out.print(rs.getString(i)+"  "); System.out.println(""); }
-					 System.out.println(" "); rs.close();
-				} else {
+				} 
+				else if (c == 2) 
+				{
+					 System.out.println("please enter your query below:"); 
+					 while ((sql = in.readLine()) == null && sql.length() == 0) 
+						 System.out.println(sql);
+					 ResultSet rs=con.stmt.executeQuery(sql); 
+					 ResultSetMetaData rsmd = rs.getMetaData(); 
+					 int numCols = rsmd.getColumnCount(); 
+					 while (rs.next()) 
+					 {
+						 System.out.print("cname:"); 
+						 for (int i=1; i<=numCols;i++)
+							 System.out.print(rs.getString(i)+"  "); 
+						 System.out.println(""); 
+					 }
+					 	System.out.println(" "); 
+					 	rs.close();
+				} 
+				else 
+				{
 					con.stmt.close();
 					break;
 				}

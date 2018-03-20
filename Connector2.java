@@ -18,17 +18,17 @@ public class Connector2
 	public Connector2() throws Exception
 	{
 		String sshHost = "georgia.eng.utah.edu";
-		String sshUser = "YOUR DB USERNAME";
-		String sshPassword = "YOUR DB PASSWORD";
+		String sshUser = "5530u34";
+		String sshPassword = "rqc47p62";
 
 		int lport = 5656;
 		String rhost = "localhost";
 		int rport = 3306;
 
 		// ?allowMultiQueryies=true this allows for multiple queries to be sent in one string // YOU MAY NOT WANT THIS FUNCTIONALITY
-		String url = "jdbc:mysql://localhost:" + lport + "/YOUR DB HERE?allowMultiQueries=true";
-		String dbUser = "YOUR DB USERNAME";
-		String dbPassword = "YOUR DB PASSWORD";
+		String url = "jdbc:mysql://localhost:" + lport + "/5530db34?allowMultiQueries=true";
+		String dbUser = "5530u34";
+		String dbPassword = "rqc47p62";
 		String driverName = "com.mysql.jdbc.Driver";
 
 		try
