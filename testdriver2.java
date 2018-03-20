@@ -9,6 +9,7 @@ public class testdriver2 {
 	static BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 	static Driver driver;
 	static User user;
+	static Admin admin;
 
 	/**
 	 * Initial display menu
@@ -121,8 +122,20 @@ public class testdriver2 {
 		driver = new Driver(username, password, null);
 		if (driver.loginAsDriver(username, password)) {
 			// they have successfully logged in as a driver, create a user account for them
+			// (probably some user method)
+
 			user = new User(username, password, null);
-			user.registerAsUser(username, password);
+
+			if (user.registerAsUser(username, password)) {
+				System.out.println("User registration successful");
+
+				// at this point I know I can login as both
+				handleLoginMenu();
+			} else {
+				System.out.println("User registration failed");
+			}
+		} else {
+			System.out.println("We couldn't find any credentials that matched");
 		}
 	}
 
@@ -132,7 +145,31 @@ public class testdriver2 {
 	 * @throws IOException
 	 */
 	public static void registerNewUser() throws IOException {
+		String username;
+		String password;
+		String password2;
+		System.out.println("Please enter your desired username:");
+		while ((username = in.readLine()) == null && username.length() == 0)
+			;
+		System.out.println("Please enter your desired password:");
+		while ((password = in.readLine()) == null && password.length() == 0)
+			;
+		System.out.println("Please enter your password again for confirmation:");
+		while ((password2 = in.readLine()) == null && password2.length() == 0)
+			;
 		
+		if (!password.equals(password2)) {
+			System.out.println("Error: passwords did not match");
+			return;
+		}
+		
+		user = new User(username, password, null);
+		if (user.registerAsUser(username, password)) {
+			System.out.println("User registration successful");
+			handleUserMenu();
+		} else {
+			System.out.println("User registration failed");
+		}
 	}
 
 	/**
@@ -152,9 +189,19 @@ public class testdriver2 {
 			;
 		user = new User(username, password, null);
 		if (user.loginAsUser(username, password)) {
-			// they have successfully logged in as a driver, create a user account for them
+			// they have successfully logged in as a user, create a driver account for them
+			// (probably some driver method)
 			driver = new Driver(username, password, null);
-			driver.registerAsDriver(username, password);
+			if (driver.registerAsDriver(username, password)) {
+				System.out.println("Driver registration successful");
+
+				// at this point I know I can login as both
+				handleLoginMenu();
+			} else {
+				System.out.println("Driver registration failed");
+			}
+		} else {
+			System.out.println("We couldn't find any credentials that matched");
 		}
 	}
 
@@ -164,7 +211,31 @@ public class testdriver2 {
 	 * @throws IOException
 	 */
 	public static void registerNewDriver() throws IOException {
+		String username;
+		String password;
+		String password2;
+		System.out.println("Please enter your desired username:");
+		while ((username = in.readLine()) == null && username.length() == 0)
+			;
+		System.out.println("Please enter your desired password:");
+		while ((password = in.readLine()) == null && password.length() == 0)
+			;
+		System.out.println("Please enter your password again for confirmation:");
+		while ((password2 = in.readLine()) == null && password2.length() == 0)
+			;
 		
+		if (!password.equals(password2)) {
+			System.out.println("Error: passwords did not match");
+			return;
+		}
+		
+		driver = new Driver(username, password, null);
+		if (driver.registerAsDriver(username, password)) {
+			System.out.println("Driver registration successful");
+			handleDriverMenu();
+		} else {
+			System.out.println("Driver registration failed");
+		}
 	}
 
 	/**
@@ -189,7 +260,7 @@ public class testdriver2 {
 			switch (c) {
 			case 1:
 				// register with driver credentials
-				registerDriverAsUser();
+			    registerDriverAsUser();
 				break;
 			case 2:
 				// make new credentials
@@ -325,11 +396,7 @@ public class testdriver2 {
 
 	/**
 	 * User options
-<<<<<<< HEAD
 	 * 
-=======
-	 * @param uu 
->>>>>>> 40459c7dcb72095737658afa31b3b8a0f727d6d9
 	 * @throws IOException
 	 */
 	public static void handleUserMenu() throws IOException {
@@ -501,6 +568,12 @@ public class testdriver2 {
 						;
 
 					// then actually login
+					// test if admin first
+					admin = new Admin(username, password, null);
+					if (admin.loginAsAdmin(username, password)) {
+						handleAdminMenu();
+						break;
+					}
 					user = new User(username, password, null);
 					driver = new Driver(username, password, null);
 
