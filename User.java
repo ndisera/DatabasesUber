@@ -16,12 +16,12 @@ public class User
 		this.stmt = stmt;
 	}
 
-	public void loginAsUser(String login, String password, Statement stmt)
+	public void loginAsUser(String login, String password)
 	{
 
 	}
 
-	public String rateUsefulness(int fid, int rating, Statement stmt)
+	public String rateUsefulness(int fid, int rating)
 	{
 		// TODO check that login of fid is not same as login of user
 		// TODO insert a new instance for rating the feedback in tables rates
@@ -31,7 +31,7 @@ public class User
 		System.out.println("executing " + sqlLoginOfFeedback);
 		try
 		{
-			rsLogin = stmt.executeQuery(sqlLoginOfFeedback);
+			rsLogin = this.stmt.executeQuery(sqlLoginOfFeedback);
 			if (rsLogin != null)
 				loginOutput = String.format("%s", rsLogin.getString("login"));
 			else 
@@ -55,7 +55,7 @@ public class User
 		System.out.println("executing " + sql);
 		try
 		{
-			rs = stmt.executeUpdate(sql);
+			rs = this.stmt.executeUpdate(sql);
 			if (rs != 0)
 				output = String.format("Feedback %d was rated %d by %s", fid, rating, this.login);
 			else
@@ -69,14 +69,14 @@ public class User
 		return output;
 	}
 
-	public void setTrustee(String uuLogin, boolean isTrusted, Statement stmt)
+	public void setTrustee(String uuLogin, boolean isTrusted)
 	{
 		// TODO make sure he login of trustee is not the same as login of the
 		// user
 		// TODO insert in table rates
 	}
 
-	public void browseCars(String category, String address, String model, boolean sortByFeedbacks, Statement stmt)
+	public void browseCars(String category, String address, String model, boolean sortByFeedbacks)
 	{
 		// TODO categories from UC table, address from the UD table, model from
 		// the ctype table
@@ -84,19 +84,19 @@ public class User
 		// sorting
 	}
 
-	public void getUsefulFeedbacks(String udLogin, int numberOfFeedbacks, Statement stmt)
+	public void getUsefulFeedbacks(String udLogin, int numberOfFeedbacks)
 	{
 		// TODO get feedbacks from all cars owned by driver and pick the
 		// feedbacks rated the most
 	}
 
-	public void getCarSuggestions(int vin, Statement stmt)
+	public void getCarSuggestions(int vin)
 	{
 		// TODO get all UCs that were used by users that rode the same car, sort
 		// by count/popularity
 	}
 
-	public void getSeparationDegree(String uuLogin1, String uuLogin2, Statement stmt)
+	public void getSeparationDegree(String uuLogin1, String uuLogin2)
 	{
 		// TODO check if they have favorites the same UC (1 degree)
 		// TODO check if they are they are 1 degree away from same user (2
