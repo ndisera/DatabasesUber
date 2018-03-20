@@ -16,9 +16,13 @@ public class User
 		this.stmt = stmt;
 	}
 
-	public void loginAsUser(String login, String password)
+	public boolean loginAsUser(String login, String password)
 	{
-
+		return true;
+	}
+	
+	public boolean registerAsUser(String login, String password) {
+		return true;
 	}
 
 	public String rateUsefulness(int fid, int rating)
