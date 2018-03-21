@@ -32,12 +32,7 @@ public class User extends UberUser
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
 		} finally {
-			try {
-				if (rs != null && !rs.isClosed())
-					rs.close();
-			} catch (Exception e) {
-				System.out.println("cannot close resultset");
-			}
+			freeResultSetResources(rs);
 		}
 		if (output.equals("")) {
 			return false;
@@ -97,7 +92,7 @@ public class User extends UberUser
 			// System.out.println(loginOutput);
 			rsLogin.close();
 
-			if (loginOutput == this.getLogin())
+			if (loginOutput.equals(this.getLogin()))
 				return "You cannot rate your own feedback.";
 
 		} catch (Exception e)
@@ -142,10 +137,10 @@ public class User extends UberUser
 	 */
 	public String setTrustee(String uuLogin, boolean isTrusted)
 	{
-		if (uuLogin == this.getLogin())
+		if (uuLogin.equals(this.getLogin()))
 			return "You cannot trust yourself.";
 
-		String sql = String.format("insert into trust values('%s', %s, %b)", this.getLogin(), uuLogin, isTrusted);
+		String sql = String.format("insert into trust values('%s', '%s', %b)", this.getLogin(), uuLogin, isTrusted);
 		String output = "";
 		int rs;
 		System.out.println("executing " + sql);
@@ -186,13 +181,13 @@ public class User extends UberUser
 	public String browseCars(String category, String address, String model, boolean sortByFeedbacks)
 	{
 		String sql = "select uc.vin, category, address, model, avg(score) from feedback, ud, uc natural join is_c_types natural join c_types where ud.login=uc.login";
-		if (category != "")
+		if ( !category.equals("") )
 			sql += String.format(" and category = '%s'", category);
-		if (model != "")
+		if ( !model.equals("") )
 			sql += String.format(" and model = '%s'", model);
-		if (address != "")
+		if ( !address.equals("") )
 			sql += String.format(" and address = '%s'", address);
-		if (sortByFeedbacks)
+		if ( sortByFeedbacks )
 			sql += " and feedback.vin = uc.vin group by uc.vin, model order by avg(score) desc";
 		else
 			sql += String.format(
@@ -206,7 +201,7 @@ public class User extends UberUser
 			rs = this.getStmt().executeQuery(sql);
 			while (rs.next())
 			{
-				output += String.format("%d %s %s %s %f", rs.getInt("vin"), rs.getString("category"),
+				output += String.format("%d %s %s %s %f \n", rs.getInt("vin"), rs.getString("category"),
 						rs.getString("address"), rs.getString("model"), rs.getFloat("avg(score)"));
 			}
 
@@ -232,22 +227,22 @@ public class User extends UberUser
 	 */
 	public String getUsefulFeedbacks(String udLogin, int numberOfFeedbacks)
 	{
-		String sql = String.format("select f.fid, f.vin, f.login, f.score, f.text" // ,
+		String sql = String.format("select f.fid, f.vin, f.login, f.score, f.text " // ,
 																					// f.fb_date
 																					// "
 				+ "from feedback f, rates r, uc, ud "
-				+ "where r.fid = f.fid and f.vin = uc.vin and uc.login = ud.login and ud.login = '%s'"
+				+ "where r.fid = f.fid and f.vin = uc.vin and uc.login = ud.login and ud.login = '%s' "
 				+ "group by f.fid order by avg(rating) desc", udLogin);
 		String output = "";
 		ResultSet rs = null;
-		System.out.println("executing " + sql);
+//		System.out.println("executing " + sql);
 		try
 		{
 			rs = this.getStmt().executeQuery(sql);
 			int row = 0;
 			while (rs.next() && row < numberOfFeedbacks)
 			{
-				output += String.format("%d %d %s %d %s", rs.getInt("fid"), rs.getInt("vin"), rs.getString("login"),
+				output += String.format("%d %d %s %d %s \n", rs.getInt("fid"), rs.getInt("vin"), rs.getString("login"),
 						rs.getInt("score"), rs.getString("text"));
 				row++;
 			}
@@ -272,9 +267,9 @@ public class User extends UberUser
 	 */
 	public String getCarSuggestions(int vin)
 	{
-		String sql = String.format("select r.vin " + "from uc, reserve r, uu "
+		String sql = String.format("select r.vin from uc, reserve r, uu "
 				+ "where uc.vin = r.vin and r.login = uu.login and r.login in "
-				+ "(select login from reserve where vin = %d) " + "group by r.vin order by count(*) desc", vin);
+				+ "(select login from reserve where vin = %d) group by r.vin order by count(*) desc", vin);
 		String output = "";
 		ResultSet rs = null;
 		System.out.println("executing " + sql);
@@ -316,14 +311,14 @@ public class User extends UberUser
 				uuLogin1, uuLogin2);
 		String output = "";
 		ResultSet rs = null;
-		System.out.println("executing " + sql);
+//		System.out.println("executing " + sql);
 		try
 		{
 			rs = this.getStmt().executeQuery(sql);
 			while (rs.next())
 			{
 				output = "1-degree away \n";
-				break;
+				return output;
 			}
 
 			rs.close();
@@ -335,7 +330,34 @@ public class User extends UberUser
 			freeResultSetResources(rs);
 		}
 		
-		return output;
+		//select f1.login from favorites f, favorites f1 where f.vin=f1.vin and f.login<>f1.login and f.login='Zach'
+		String sqlSecondDegree = String.format(
+				"select f1.login from favorites f, favorites f1 "
+				+ "where f.vin=f1.vin and f.login<>f1.login and f.login='%s' and f1.login in "
+						+ "(select f1.login from favorites f, favorites f1 "
+						+ "where f.vin=f1.vin and f.login<>f1.login and f.login='%s')",
+				uuLogin1, uuLogin2);
+		ResultSet rsSecondDegree = null;
+//		System.out.println("executing " + sqlSecondDegree);
+		try
+		{
+			rsSecondDegree = this.getStmt().executeQuery(sqlSecondDegree);
+			while (rsSecondDegree.next())
+			{
+				output = "2-degree away \n";
+				return output;
+			}
+
+			rsSecondDegree.close();
+		} catch (Exception e)
+		{
+			System.out.println("cannot execute the query");
+		} finally
+		{
+			freeResultSetResources(rsSecondDegree);
+		}
+		
+		return "More than 2 degree of separation \n";
 	}
 
 	// Helper method

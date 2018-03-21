@@ -453,7 +453,7 @@ public class testdriver2 {
 			} catch (Exception e) {
 				continue;
 			}
-
+			String input;
 			switch (c) {
 			case 1:
 				// make a reservation
@@ -469,22 +469,122 @@ public class testdriver2 {
 				break;
 			case 5:
 				// rate feedback usefulness
-				user.rateUsefulness(4, 2);
+				int fid, rating;
+				try
+				{
+					System.out.println("Please enter the feedback fid you want to rate:");
+					while ((input = in.readLine()) == null && choice.length() == 0);
+					fid = Integer.parseInt(input);
+					System.out.println("Please enter the rating for the feedback between 0-2:");
+					while ((input = in.readLine()) == null && choice.length() == 0);
+					rating = Integer.parseInt(input);
+					if (rating < 0 || rating > 2)
+					{
+						System.out.println("Wrong input range");
+						break;
+					}						
+				}
+				catch(NumberFormatException e)
+				{
+					System.out.println("Wrong number format");
+					break;
+				}
+				String usefulness = user.rateUsefulness(fid, rating);
+				System.out.println(usefulness);
 				break;
 			case 6:
 				// edit trusted users
+				System.out.println("Please enter the login of the user you want to trust/distrust:");
+				String uuLogin;
+				while ((uuLogin = in.readLine()) == null && choice.length() == 0);
+				System.out.println("Do you trust him ? (yes/no) ");
+				while ((input = in.readLine()) == null && choice.length() == 0);
+				boolean isTrusted;
+				if (input.toLowerCase().equals("yes"))
+					isTrusted = true;
+				else if (input.toLowerCase().equals("no"))
+					isTrusted = false;
+				else 
+				{
+					System.out.println("Wrong input");
+					break;
+				}
+				String trustInfo = user.setTrustee(uuLogin, isTrusted);
+				System.out.println(trustInfo);
 				break;
 			case 7:
 				// browse cars
+				System.out.println("Please enter car's category or leave it blank");
+				String category;
+				while ((category = in.readLine()) == null && choice.length() == 0);
+				
+				System.out.println("Please enter car's address or leave it blank");
+				String address;
+				while ((address = in.readLine()) == null && choice.length() == 0);
+				
+				System.out.println("Please enter car's model or leave it blank");
+				String model;
+				while ((model = in.readLine()) == null && choice.length() == 0);
+				
+				System.out.println("Do you want the results sorted by the feedback of only the users you trust? (yes/no) ");
+				while ((input = in.readLine()) == null && choice.length() == 0);
+				boolean sortByFeedbacks;
+				if (input.toLowerCase().equals("no"))
+					sortByFeedbacks = true;
+				else if (input.toLowerCase().equals("yes"))
+					sortByFeedbacks = false;
+				else 
+				{
+					System.out.println("Wrong input");
+					break;
+				}
+				String cars = user.browseCars(category, address, model, sortByFeedbacks);
+				System.out.println(cars);
 				break;
 			case 8:
 				// get most useful feedback for a driver
+				System.out.println("Please enter the login of the driver you want feedback for:");
+				String udLogin;
+				while ((udLogin = in.readLine()) == null && choice.length() == 0);
+				System.out.println("Please enter the number of feedbacks you want:");
+				while ((input = in.readLine()) == null && choice.length() == 0);
+				int numberOfFeedbacks;
+				try
+				{
+					numberOfFeedbacks = Integer.parseInt(input);
+				}
+				catch(NumberFormatException e)
+				{
+					System.out.println("Wrong number format");
+					break;
+				}
+				String feedbacks = user.getUsefulFeedbacks(udLogin, numberOfFeedbacks);
+				System.out.println(feedbacks);
 				break;
 			case 9:
 				// get suggested cars
+				System.out.println("Please enter the user vin of the car you want to get suggestions based on");
+				while ((input = in.readLine()) == null && choice.length() == 0);
+				int vin;
+				try
+				{
+					vin = Integer.parseInt(input);
+				}
+				catch(NumberFormatException e)
+				{
+					System.out.println("Wrong number format");
+					break;
+				}
+				String suggestions = user.getCarSuggestions(vin);
+				System.out.println(suggestions);
 				break;
 			case 10:
 				// get user degrees of separation
+				System.out.println("Please enter the user login of the user you want to know the separation degree of:");;
+				String uuLogin2;
+				while ((uuLogin2 = in.readLine()) == null && choice.length() == 0);
+				String degree = user.getSeparationDegree(user.getLogin(), uuLogin2);
+				System.out.println(degree);
 				break;
 			case 11:
 				// get statistics
