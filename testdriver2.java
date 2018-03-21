@@ -468,13 +468,8 @@ public class testdriver2 {
 				// record feedback for a car
 				break;
 			case 5:
-<<<<<<< HEAD
-				// TODO rate feedback usefulness
-				uu.rateUsefulness(4, 2); // hardcoded parameters, should be replaced with fid and rating
-=======
 				// rate feedback usefulness
 				user.rateUsefulness(4, 2);
->>>>>>> 51d2ccc08eb7435ac447d23e379084a11fd38a6f
 				break;
 			case 6:
 				// edit trusted users

@@ -144,16 +144,16 @@ public class User extends UberUser
 	 */
 	public String setTrustee(String uuLogin, boolean isTrusted)
 	{
-		if (uuLogin == this.login)
+		if (uuLogin == this.getLogin())
 			return "You cannot trust yourself.";
 
-		String sql = String.format("insert into trust values('%s', %s, %b)", this.login, uuLogin, isTrusted);
+		String sql = String.format("insert into trust values('%s', %s, %b)", this.getLogin(), uuLogin, isTrusted);
 		String output = "";
 		int rs;
 		System.out.println("executing " + sql);
 		try
 		{
-			rs = this.stmt.executeUpdate(sql);
+			rs = this.getStmt().executeUpdate(sql);
 			if (rs > 0)
 				output = String.format("You updated your trust record for %s\n", uuLogin);
 			else
@@ -200,13 +200,13 @@ public class User extends UberUser
 		else
 			sql += String.format(
 					" and feedback.vin = uc.vin and feedback.login in (select login2 from trust where login1 = '%s') group by uc.vin, model order by avg(score) desc",
-					this.login);
+					this.getLogin());
 		String output = "";
 		ResultSet rs = null;
 		System.out.println("executing " + sql);
 		try
 		{
-			rs = stmt.executeQuery(sql);
+			rs = this.getStmt().executeQuery(sql);
 			while (rs.next())
 			{
 				output += String.format("%d %s %s %s %f", rs.getInt("vin"), rs.getString("category"),
@@ -247,7 +247,7 @@ public class User extends UberUser
 		System.out.println("executing " + sql);
 		try
 		{
-			rs = stmt.executeQuery(sql);
+			rs = this.getStmt().executeQuery(sql);
 			int row = 0;
 			while (rs.next() && row < numberOfFeedbacks)
 			{
@@ -285,7 +285,7 @@ public class User extends UberUser
 		System.out.println("executing " + sql);
 		try
 		{
-			rs = stmt.executeQuery(sql);
+			rs = this.getStmt().executeQuery(sql);
 			while (rs.next())
 			{
 				output += String.format("%d \n", rs.getInt("vin"));
@@ -325,7 +325,7 @@ public class User extends UberUser
 		System.out.println("executing " + sql);
 		try
 		{
-			rs = stmt.executeQuery(sql);
+			rs = this.getStmt().executeQuery(sql);
 			while (rs.next())
 			{
 				output = "1-degree away \n";
