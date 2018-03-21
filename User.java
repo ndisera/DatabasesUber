@@ -25,7 +25,7 @@ public class User extends UberUser
 				output += rs.getString("login") + "\n";
 				this.setName(rs.getString("name"));
 				this.setAddress(rs.getString("address"));
-				this.setPhoneNumber(rs.getInt("phoneNumber"));
+				this.setPhoneNumber(rs.getInt("phone"));
 			}
 
 			rs.close();

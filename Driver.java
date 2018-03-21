@@ -25,7 +25,7 @@ public class Driver extends UberUser {
 				output += rs.getString("login") + "\n";
 				this.setName(rs.getString("name"));
 				this.setAddress(rs.getString("address"));
-				this.setPhoneNumber(rs.getInt("phoneNumber"));
+				this.setPhoneNumber(rs.getInt("phone"));
 			}
 
 			rs.close();
@@ -51,7 +51,7 @@ public class Driver extends UberUser {
 			return false;
 		}
 		// insert into table
-		String sql = String.format("insert into ud (login, name, address, phone, password) values ('%s', '%s', '%s', %d, '%s')", 
+		String sql = String.format("insert into ud (login, name, address, phone, password) values ('%s', '%s', '%s', %d, '%s');", 
 				login, name, address, phoneNumber, password);
 		int rs = 0;
 		System.out.println("executing " + sql);
