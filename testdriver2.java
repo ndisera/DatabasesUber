@@ -5,8 +5,12 @@ import java.sql.*;
 import java.io.*;
 
 public class testdriver2 {
-	
+
 	static BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+	static Driver driver;
+	static User user;
+	static Admin admin;
+	static Connector2 con;
 
 	/**
 	 * Initial display menu
@@ -18,7 +22,7 @@ public class testdriver2 {
 		System.out.println("3. Close Connection:");
 		System.out.println("Please enter your choice:");
 	}
-	
+
 	/**
 	 * Logged in menu when participant is a driver and user
 	 */
@@ -29,7 +33,7 @@ public class testdriver2 {
 		System.out.println("3. Exit");
 		System.out.println("Please enter your choice:");
 	}
-	
+
 	/**
 	 * User menu
 	 */
@@ -48,7 +52,7 @@ public class testdriver2 {
 		System.out.println("12. Exit");
 		System.out.println("Please enter your choice:");
 	}
-	
+
 	/**
 	 * Driver menu
 	 */
@@ -58,7 +62,7 @@ public class testdriver2 {
 		System.out.println("3. Exit");
 		System.out.println("Please enter your choice:");
 	}
-	
+
 	/**
 	 * Admin menu
 	 */
@@ -67,7 +71,7 @@ public class testdriver2 {
 		System.out.println("2. Exit");
 		System.out.println("Please enter your choice:");
 	}
-	
+
 	/**
 	 * Registration menu
 	 */
@@ -78,7 +82,7 @@ public class testdriver2 {
 		System.out.println("3. Exit");
 		System.out.println("Please enter your choice:");
 	}
-	
+
 	/**
 	 * Are you already a driver prompt
 	 */
@@ -89,7 +93,7 @@ public class testdriver2 {
 		System.out.println("3. Exit");
 		System.out.println("Please enter your choice:");
 	}
-	
+
 	/**
 	 * Are you already a user prompt
 	 */
@@ -100,12 +104,14 @@ public class testdriver2 {
 		System.out.println("3. Exit");
 		System.out.println("Please enter your choice:");
 	}
-	
+
 	/**
-	 * Asks for username and password
+	 * Registers an existing driver as a new user
+	 * 
 	 * @throws IOException
 	 */
-	public static void loginPrompt() throws IOException {
+	public static void registerDriverAsUser() throws IOException {
+		System.out.println("Register with your driver credentials");
 		String username;
 		String password;
 		System.out.println("Please enter your username:");
@@ -114,18 +120,40 @@ public class testdriver2 {
 		System.out.println("Please enter your password:");
 		while ((password = in.readLine()) == null && password.length() == 0)
 			;
-		
-		// probably return some kind of user/driver/both/admin object to identify what they are
+		driver = new Driver(username, password, con.stmt);
+		if (driver.loginToUber(username, password)) {
+			// they have successfully logged in as a driver, create a user account for them
+			// (probably some user method)
+
+			user = new User(username, password, con.stmt);
+
+			// here, I'll want to pass in name, address, phoneNumber already existing from driver
+			// so don't return boolean, just return null or the object
+			if (user.registerForUber(username, password, driver.getName(), driver.getAddress(), driver.getPhoneNumber())) {
+				System.out.println("User registration successful");
+
+				// at this point I know I can login as both
+				handleLoginMenu();
+			} else {
+				System.out.println("User registration failed");
+			}
+		} else {
+			System.out.println("We couldn't find any credentials that matched");
+		}
 	}
-	
+
 	/**
-	 * Asks for a username, password, and password confirmation
+	 * Registers a new user
+	 * 
 	 * @throws IOException
 	 */
-	public static void registrationPrompt() throws IOException {
+	public static void registerNewUser() throws IOException {
 		String username;
 		String password;
 		String password2;
+		String name;
+		String address;
+		String phoneNumber;
 		System.out.println("Please enter your desired username:");
 		while ((username = in.readLine()) == null && username.length() == 0)
 			;
@@ -133,52 +161,130 @@ public class testdriver2 {
 		while ((password = in.readLine()) == null && password.length() == 0)
 			;
 		System.out.println("Please enter your password again for confirmation:");
-		while ((password2 = in.readLine()) == null && password.length() == 0)
+		while ((password2 = in.readLine()) == null && password2.length() == 0)
+			;
+		System.out.println("Please enter your name:");
+		while ((name = in.readLine()) == null)
+			;
+		System.out.println("Please enter your address:");
+		while ((address = in.readLine()) == null)
+			;
+		System.out.println("Please enter your phone number (only digits):");
+		while ((phoneNumber = in.readLine()) == null)
 			;
 		
-		// probably return some kind of user/driver/both/ object to identify what they are
+		if (!password.equals(password2)) {
+			System.out.println("Error: passwords did not match");
+			return;
+		}
+		try {
+	        Integer.parseInt(phoneNumber);
+	    }
+	    catch( Exception e ) {
+	        System.out.println("Phone number can only consist of digits");
+	        return;
+	    }
+
+		user = new User(username, password, con.stmt);
+		if (user.registerForUber(username, password, name, address, Integer.parseInt(phoneNumber))) {
+			System.out.println("User registration successful");
+			handleUserMenu();
+		} else {
+			System.out.println("User registration failed");
+		}
 	}
-	
-	/**
-	 * Registers an existing driver as a new user
-	 * @throws IOException 
-	 */
-	public static void registerDriverAsUser() throws IOException {
-		System.out.println("Register with your driver credentials");
-		loginPrompt();
-	}
-	
-	/**
-	 * Registers a new user 
-	 * @throws IOException 
-	 */
-	public static void registerNewUser() throws IOException {
-		registrationPrompt();
-	}
-	
+
 	/**
 	 * Registers an existing user as a new driver
-	 * @throws IOException 
+	 * 
+	 * @throws IOException
 	 */
 	public static void registerUserAsDriver() throws IOException {
 		System.out.println("Register with your user credentials");
-		loginPrompt();
+		String username;
+		String password;
+		System.out.println("Please enter your username:");
+		while ((username = in.readLine()) == null && username.length() == 0)
+			;
+		System.out.println("Please enter your password:");
+		while ((password = in.readLine()) == null && password.length() == 0)
+			;
+		user = new User(username, password, con.stmt);
+		if (user.loginToUber(username, password)) {
+			// they have successfully logged in as a user, create a driver account for them
+			// (probably some driver method)
+			driver = new Driver(username, password, con.stmt);
+			if (driver.registerForUber(username, password, user.getName(), user.getAddress(), user.getPhoneNumber())) {
+				System.out.println("Driver registration successful");
+
+				// at this point I know I can login as both
+				handleLoginMenu();
+			} else {
+				System.out.println("Driver registration failed");
+			}
+		} else {
+			System.out.println("We couldn't find any credentials that matched");
+		}
 	}
-	
+
 	/**
 	 * Registers a new driver
-	 * @throws IOException 
+	 * 
+	 * @throws IOException
 	 */
 	public static void registerNewDriver() throws IOException {
-		registrationPrompt();
+		String username;
+		String password;
+		String password2;
+		String name;
+		String address;
+		String phoneNumber;
+		System.out.println("Please enter your desired username:");
+		while ((username = in.readLine()) == null && username.length() == 0)
+			;
+		System.out.println("Please enter your desired password:");
+		while ((password = in.readLine()) == null && password.length() == 0)
+			;
+		System.out.println("Please enter your password again for confirmation:");
+		while ((password2 = in.readLine()) == null && password2.length() == 0)
+			;
+		System.out.println("Please enter your name:");
+		while ((name = in.readLine()) == null)
+			;
+		System.out.println("Please enter your address:");
+		while ((address = in.readLine()) == null)
+			;
+		System.out.println("Please enter your phone number (only digits):");
+		while ((phoneNumber = in.readLine()) == null)
+			;
+
+		if (!password.equals(password2)) {
+			System.out.println("Error: passwords did not match");
+			return;
+		}
+		try {
+	        Integer.parseInt(phoneNumber);
+	    }
+	    catch( Exception e ) {
+	        System.out.println("Phone number can only consist of digits");
+	        return;
+	    }
+
+		driver = new Driver(username, password, con.stmt);
+		if (driver.registerForUber(username, password, name, address, Integer.parseInt(phoneNumber))) {
+			System.out.println("Driver registration successful");
+			handleDriverMenu();
+		} else {
+			System.out.println("Driver registration failed");
+		}
 	}
-	
+
 	/**
 	 * Handles user registration.
+	 * 
 	 * @throws IOException
 	 */
 	public static void handleUserRegistration() throws IOException {
-		displayDriverRegisterMenu();
 		int c = 0;
 		String choice;
 		boolean level = true;
@@ -191,8 +297,8 @@ public class testdriver2 {
 			} catch (Exception e) {
 				continue;
 			}
-			
-			switch(c) {
+
+			switch (c) {
 			case 1:
 				// register with driver credentials
 				registerDriverAsUser();
@@ -206,18 +312,18 @@ public class testdriver2 {
 				level = false;
 				break;
 			default:
-				System.out.println("You're input didn't match any of the choices");
+				System.out.println("Your input didn't match any of the choices");
 				break;
 			}
 		}
 	}
-	
+
 	/**
 	 * Handles driver registration
+	 * 
 	 * @throws IOException
 	 */
 	public static void handleDriverRegistration() throws IOException {
-		displayDriverRegisterMenu();
 		int c = 0;
 		String choice;
 		boolean level = true;
@@ -230,8 +336,8 @@ public class testdriver2 {
 			} catch (Exception e) {
 				continue;
 			}
-			
-			switch(c) {
+
+			switch (c) {
 			case 1:
 				// register with user credentials
 				registerUserAsDriver();
@@ -245,14 +351,15 @@ public class testdriver2 {
 				level = false;
 				break;
 			default:
-				System.out.println("You're input didn't match any of the choices");
+				System.out.println("Your input didn't match any of the choices");
 				break;
 			}
 		}
 	}
-	
+
 	/**
 	 * Starts the registration process
+	 * 
 	 * @throws IOException
 	 */
 	public static void handleRegisterMenu() throws IOException {
@@ -268,8 +375,8 @@ public class testdriver2 {
 			} catch (Exception e) {
 				continue;
 			}
-			
-			switch(c) {
+
+			switch (c) {
 			case 1:
 				// register as user
 				handleUserRegistration();
@@ -283,14 +390,15 @@ public class testdriver2 {
 				level = false;
 				break;
 			default:
-				System.out.println("You're input didn't match any of the choices");
+				System.out.println("Your input didn't match any of the choices");
 				break;
 			}
 		}
 	}
-	
+
 	/**
 	 * Handles login for someone who is a user and a driver
+	 * 
 	 * @throws IOException
 	 */
 	public static void handleLoginMenu() throws IOException {
@@ -306,11 +414,11 @@ public class testdriver2 {
 			} catch (Exception e) {
 				continue;
 			}
-			
-			switch(c) {
+
+			switch (c) {
 			case 1:
 				// proceed as user
-				handleUserMenu(null);
+				handleUserMenu();
 				break;
 			case 2:
 				// proceed as driver
@@ -321,18 +429,18 @@ public class testdriver2 {
 				level = false;
 				break;
 			default:
-				System.out.println("You're input didn't match any of the choices");
+				System.out.println("Your input didn't match any of the choices");
 				break;
 			}
 		}
 	}
-	
+
 	/**
 	 * User options
-	 * @param uu 
+	 * 
 	 * @throws IOException
 	 */
-	public static void handleUserMenu(User uu) throws IOException {
+	public static void handleUserMenu() throws IOException {
 		int c = 0;
 		String choice;
 		boolean level = true;
@@ -345,8 +453,8 @@ public class testdriver2 {
 			} catch (Exception e) {
 				continue;
 			}
-			
-			switch(c) {
+
+			switch (c) {
 			case 1:
 				// make a reservation
 				break;
@@ -360,8 +468,13 @@ public class testdriver2 {
 				// record feedback for a car
 				break;
 			case 5:
+<<<<<<< HEAD
 				// TODO rate feedback usefulness
 				uu.rateUsefulness(4, 2); // hardcoded parameters, should be replaced with fid and rating
+=======
+				// rate feedback usefulness
+				user.rateUsefulness(4, 2);
+>>>>>>> 51d2ccc08eb7435ac447d23e379084a11fd38a6f
 				break;
 			case 6:
 				// edit trusted users
@@ -381,19 +494,20 @@ public class testdriver2 {
 			case 11:
 				// get statistics
 				break;
-			case 12: 
+			case 12:
 				// go back
 				level = false;
 				break;
 			default:
-				System.out.println("You're input didn't match any of the choices");
+				System.out.println("Your input didn't match any of the choices");
 				break;
 			}
 		}
 	}
-	
+
 	/**
 	 * Driver options
+	 * 
 	 * @throws IOException
 	 */
 	public static void handleDriverMenu() throws IOException {
@@ -409,8 +523,8 @@ public class testdriver2 {
 			} catch (Exception e) {
 				continue;
 			}
-			
-			switch(c) {
+
+			switch (c) {
 			case 1:
 				// add new car
 				break;
@@ -422,14 +536,15 @@ public class testdriver2 {
 				level = false;
 				break;
 			default:
-				System.out.println("You're input didn't match any of the choices");
+				System.out.println("Your input didn't match any of the choices");
 				break;
 			}
 		}
 	}
-	
+
 	/**
 	 * Admin options
+	 * 
 	 * @throws IOException
 	 */
 	public static void handleAdminMenu() throws IOException {
@@ -445,8 +560,8 @@ public class testdriver2 {
 			} catch (Exception e) {
 				continue;
 			}
-			
-			switch(c) {
+
+			switch (c) {
 			case 1:
 				// award top users
 				break;
@@ -455,17 +570,15 @@ public class testdriver2 {
 				level = false;
 				break;
 			default:
-				System.out.println("You're input didn't match any of the choices");
+				System.out.println("Your input didn't match any of the choices");
 				break;
-			}			
+			}
 		}
 	}
 
 	public static void main(String[] args) {
-		Connector2 con = null;
+		con = null;
 		String choice;
-//		String cname;
-//		String dname;
 		String sql = null;
 		int c = 0;
 		String username;
@@ -474,8 +587,9 @@ public class testdriver2 {
 			// remember to replace the password
 			con = new Connector2();
 			System.out.println("Database connection established");
+			boolean level = true;
 
-			while (true) {
+			while (level) {
 				displayMenu();
 				while ((choice = in.readLine()) == null && choice.length() == 0)
 					;
@@ -485,9 +599,7 @@ public class testdriver2 {
 
 					continue;
 				}
-//				if (c < 1 | c > 3)
-//					continue;
-				
+
 				switch (c) {
 				case 1:
 					// login
@@ -497,16 +609,33 @@ public class testdriver2 {
 					System.out.println("Please enter your password:");
 					while ((password = in.readLine()) == null && password.length() == 0)
 						;
-					
-					// TODO then actually login
-					User uu = new User(username, password, con.stmt); 
-					
-					// display user menu if user
-					handleUserMenu(uu);
-					// display driver menu if driver
-					handleDriverMenu();
-					// display login menu if both
-					handleLoginMenu();
+
+					// then actually login
+					// test if admin first
+					admin = new Admin(username, password, con.stmt);
+					if (admin.loginAsAdmin(username, password)) {
+						handleAdminMenu();
+						break;
+					}
+					user = new User(username, password, con.stmt);
+					driver = new Driver(username, password, con.stmt);
+
+					boolean userLoginSuccess = user.loginToUber(username, password);
+					boolean driverLoginSuccess = driver.loginToUber(username, password);
+
+					if (userLoginSuccess && driverLoginSuccess) {
+						// display login menu if both
+						handleLoginMenu();
+					} else if (userLoginSuccess) {
+						// display user menu if user
+						handleUserMenu();
+					} else if (driverLoginSuccess) {
+						// display driver menu if driver
+						handleDriverMenu();
+					} else {
+						// login failed
+						System.out.println("Login failed.");
+					}
 					break;
 				case 2:
 					// register
@@ -515,45 +644,12 @@ public class testdriver2 {
 				case 3:
 					// exit
 					con.stmt.close();
+					level = false;
 					break;
 				default:
 					System.out.println("Your input didn't match any of the choices");
 					break;
 				}
-
-				/*if (c == 1) {
-					System.out.println("please enter a cname:");
-					while ((cname = in.readLine()) == null && cname.length() == 0)
-						;
-					System.out.println("please enter a dname:");
-					while ((dname = in.readLine()) == null && dname.length() == 0)
-						;
-					Course course = new Course();
-					System.out.println(course.getCourse(cname, dname, con.stmt));
-				} 
-				else if (c == 2) 
-				{
-					 System.out.println("please enter your query below:"); 
-					 while ((sql = in.readLine()) == null && sql.length() == 0) 
-						 System.out.println(sql);
-					 ResultSet rs=con.stmt.executeQuery(sql); 
-					 ResultSetMetaData rsmd = rs.getMetaData(); 
-					 int numCols = rsmd.getColumnCount(); 
-					 while (rs.next()) 
-					 {
-						 System.out.print("cname:"); 
-						 for (int i=1; i<=numCols;i++)
-							 System.out.print(rs.getString(i)+"  "); 
-						 System.out.println(""); 
-					 }
-					 	System.out.println(" "); 
-					 	rs.close();
-				} 
-				else 
-				{
-					con.stmt.close();
-					break;
-				}*/
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
