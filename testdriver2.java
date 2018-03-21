@@ -361,7 +361,7 @@ public class testdriver2 {
 				break;
 			case 5:
 				// TODO rate feedback usefulness
-				uu.rateUsefulness(4, 2);
+				uu.rateUsefulness(4, 2); // hardcoded parameters, should be replaced with fid and rating
 				break;
 			case 6:
 				// edit trusted users
