@@ -2,27 +2,73 @@ package cs5530;
 
 import java.sql.*;
 
-public class User
+public class User extends UberUser
 {
-	public String login;
-	public String password;
-	public Statement stmt;
-
 	// Constructor for the User class
 	public User(String login, String password, Statement stmt)
 	{
-		this.login = login;
-		this.password = password;
-		this.stmt = stmt;
+		super(login, password, stmt);
 	}
+	
+	public User(String login, String password, Statement stmt, String name, String address, int phoneNumber) {
+		super(login, password, stmt, name, address, phoneNumber);
+	}
+	
+	public boolean loginToUber(String login, String password) {
+		String sql = String.format("select * from uu where login = '%s' and password = '%s'", login, password);
+		String output = "";
+		ResultSet rs = null;
+//		System.out.println("executing " + sql);
+		try {
+			rs = this.getStmt().executeQuery(sql);
+			while (rs.next()) {
+				output += rs.getString("login") + "\n";
+				this.setName(rs.getString("name"));
+				this.setAddress(rs.getString("address"));
+				this.setPhoneNumber(rs.getInt("phoneNumber"));
+			}
 
-	public boolean loginAsUser(String login, String password)
-	{
+			rs.close();
+		} catch (Exception e) {
+			System.out.println("cannot execute the query");
+		} finally {
+			try {
+				if (rs != null && !rs.isClosed())
+					rs.close();
+			} catch (Exception e) {
+				System.out.println("cannot close resultset");
+			}
+		}
+		if (output.equals("")) {
+			return false;
+		}
 		return true;
 	}
 	
-	public boolean registerAsUser(String login, String password) {
-		return true;
+	public boolean registerForUber(String login, String password, String name, String address, int phoneNumber) {
+		// make sure login returns false
+				if (loginToUber(login, password)) {
+					return false;
+				}
+				// insert into table
+				String sql = String.format("insert into uu (login, name, address, phone, password) values('%s', '%s', '%s', %d, '%s');", 
+						login, name, address, phoneNumber, password);
+				int rs = 0;
+				System.out.println("executing " + sql);
+				try
+				{
+					rs = this.getStmt().executeUpdate(sql);
+					
+				} catch (Exception e)
+				{
+					System.out.println("cannot execute the query");
+					e.printStackTrace(System.out);
+				}
+				
+				if (rs > 0) {
+					return true;
+				}
+				return false;
 	}
 
 	public String rateUsefulness(int fid, int rating)
@@ -35,7 +81,7 @@ public class User
 		System.out.println("executing " + sqlLoginOfFeedback);
 		try
 		{
-			rsLogin = this.stmt.executeQuery(sqlLoginOfFeedback);
+			rsLogin = this.getStmt().executeQuery(sqlLoginOfFeedback);
 
 			if (rsLogin.next())
 				loginOutput = String.format("%s", rsLogin.getString("login"));
@@ -44,7 +90,7 @@ public class User
 //			System.out.println(loginOutput);
 			rsLogin.close();
 
-			if (loginOutput == this.login)
+			if (loginOutput == this.getLogin())
 				return "You cannot rate your own feedback.";
 			
 		} catch (Exception e)
@@ -56,15 +102,15 @@ public class User
 			freeResultSetResources(rsLogin);
 		}
 
-		String sql = String.format("insert into rates values('%s', %d, %d)", this.login, fid, rating);
+		String sql = String.format("insert into rates values('%s', %d, %d)", this.getLogin(), fid, rating);
 		String output = "";
 		int rs;
 		System.out.println("executing " + sql);
 		try
 		{
-			rs = this.stmt.executeUpdate(sql);
+			rs = this.getStmt().executeUpdate(sql);
 			if (rs > 0)
-				output = String.format("Feedback %d was rated %d by %s\n", fid, rating, this.login);
+				output = String.format("Feedback %d was rated %d by %s\n", fid, rating, this.getLogin());
 			else
 				output = "Rating couldn't be inserted.\n";
 			

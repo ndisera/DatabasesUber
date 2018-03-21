@@ -10,6 +10,7 @@ public class testdriver2 {
 	static Driver driver;
 	static User user;
 	static Admin admin;
+	static Connector2 con;
 
 	/**
 	 * Initial display menu
@@ -119,14 +120,16 @@ public class testdriver2 {
 		System.out.println("Please enter your password:");
 		while ((password = in.readLine()) == null && password.length() == 0)
 			;
-		driver = new Driver(username, password, null);
-		if (driver.loginAsDriver(username, password)) {
+		driver = new Driver(username, password, con.stmt);
+		if (driver.loginToUber(username, password)) {
 			// they have successfully logged in as a driver, create a user account for them
 			// (probably some user method)
 
-			user = new User(username, password, null);
+			user = new User(username, password, con.stmt);
 
-			if (user.registerAsUser(username, password)) {
+			// here, I'll want to pass in name, address, phoneNumber already existing from driver
+			// so don't return boolean, just return null or the object
+			if (user.registerForUber(username, password, driver.getName(), driver.getAddress(), driver.getPhoneNumber())) {
 				System.out.println("User registration successful");
 
 				// at this point I know I can login as both
@@ -148,6 +151,9 @@ public class testdriver2 {
 		String username;
 		String password;
 		String password2;
+		String name;
+		String address;
+		String phoneNumber;
 		System.out.println("Please enter your desired username:");
 		while ((username = in.readLine()) == null && username.length() == 0)
 			;
@@ -157,14 +163,30 @@ public class testdriver2 {
 		System.out.println("Please enter your password again for confirmation:");
 		while ((password2 = in.readLine()) == null && password2.length() == 0)
 			;
+		System.out.println("Please enter your name:");
+		while ((name = in.readLine()) == null)
+			;
+		System.out.println("Please enter your address:");
+		while ((address = in.readLine()) == null)
+			;
+		System.out.println("Please enter your phone number (only digits):");
+		while ((phoneNumber = in.readLine()) == null)
+			;
 		
 		if (!password.equals(password2)) {
 			System.out.println("Error: passwords did not match");
 			return;
 		}
-		
-		user = new User(username, password, null);
-		if (user.registerAsUser(username, password)) {
+		try {
+	        Integer.parseInt(phoneNumber);
+	    }
+	    catch( Exception e ) {
+	        System.out.println("Phone number can only consist of digits");
+	        return;
+	    }
+
+		user = new User(username, password, con.stmt);
+		if (user.registerForUber(username, password, name, address, Integer.parseInt(phoneNumber))) {
 			System.out.println("User registration successful");
 			handleUserMenu();
 		} else {
@@ -187,12 +209,12 @@ public class testdriver2 {
 		System.out.println("Please enter your password:");
 		while ((password = in.readLine()) == null && password.length() == 0)
 			;
-		user = new User(username, password, null);
-		if (user.loginAsUser(username, password)) {
+		user = new User(username, password, con.stmt);
+		if (user.loginToUber(username, password)) {
 			// they have successfully logged in as a user, create a driver account for them
 			// (probably some driver method)
-			driver = new Driver(username, password, null);
-			if (driver.registerAsDriver(username, password)) {
+			driver = new Driver(username, password, con.stmt);
+			if (driver.registerForUber(username, password, user.getName(), user.getAddress(), user.getPhoneNumber())) {
 				System.out.println("Driver registration successful");
 
 				// at this point I know I can login as both
@@ -214,6 +236,9 @@ public class testdriver2 {
 		String username;
 		String password;
 		String password2;
+		String name;
+		String address;
+		String phoneNumber;
 		System.out.println("Please enter your desired username:");
 		while ((username = in.readLine()) == null && username.length() == 0)
 			;
@@ -223,14 +248,30 @@ public class testdriver2 {
 		System.out.println("Please enter your password again for confirmation:");
 		while ((password2 = in.readLine()) == null && password2.length() == 0)
 			;
-		
+		System.out.println("Please enter your name:");
+		while ((name = in.readLine()) == null)
+			;
+		System.out.println("Please enter your address:");
+		while ((address = in.readLine()) == null)
+			;
+		System.out.println("Please enter your phone number (only digits):");
+		while ((phoneNumber = in.readLine()) == null)
+			;
+
 		if (!password.equals(password2)) {
 			System.out.println("Error: passwords did not match");
 			return;
 		}
-		
-		driver = new Driver(username, password, null);
-		if (driver.registerAsDriver(username, password)) {
+		try {
+	        Integer.parseInt(phoneNumber);
+	    }
+	    catch( Exception e ) {
+	        System.out.println("Phone number can only consist of digits");
+	        return;
+	    }
+
+		driver = new Driver(username, password, con.stmt);
+		if (driver.registerForUber(username, password, name, address, Integer.parseInt(phoneNumber))) {
 			System.out.println("Driver registration successful");
 			handleDriverMenu();
 		} else {
@@ -260,7 +301,7 @@ public class testdriver2 {
 			switch (c) {
 			case 1:
 				// register with driver credentials
-			    registerDriverAsUser();
+				registerDriverAsUser();
 				break;
 			case 2:
 				// make new credentials
@@ -531,10 +572,8 @@ public class testdriver2 {
 	}
 
 	public static void main(String[] args) {
-		Connector2 con = null;
+		con = null;
 		String choice;
-		// String cname;
-		// String dname;
 		String sql = null;
 		int c = 0;
 		String username;
@@ -543,8 +582,9 @@ public class testdriver2 {
 			// remember to replace the password
 			con = new Connector2();
 			System.out.println("Database connection established");
+			boolean level = true;
 
-			while (true) {
+			while (level) {
 				displayMenu();
 				while ((choice = in.readLine()) == null && choice.length() == 0)
 					;
@@ -554,8 +594,6 @@ public class testdriver2 {
 
 					continue;
 				}
-				// if (c < 1 | c > 3)
-				// continue;
 
 				switch (c) {
 				case 1:
@@ -569,16 +607,16 @@ public class testdriver2 {
 
 					// then actually login
 					// test if admin first
-					admin = new Admin(username, password, null);
+					admin = new Admin(username, password, con.stmt);
 					if (admin.loginAsAdmin(username, password)) {
 						handleAdminMenu();
 						break;
 					}
-					user = new User(username, password, null);
-					driver = new Driver(username, password, null);
+					user = new User(username, password, con.stmt);
+					driver = new Driver(username, password, con.stmt);
 
-					boolean userLoginSuccess = user.loginAsUser(username, password);
-					boolean driverLoginSuccess = driver.loginAsDriver(username, password);
+					boolean userLoginSuccess = user.loginToUber(username, password);
+					boolean driverLoginSuccess = driver.loginToUber(username, password);
 
 					if (userLoginSuccess && driverLoginSuccess) {
 						// display login menu if both
@@ -601,26 +639,12 @@ public class testdriver2 {
 				case 3:
 					// exit
 					con.stmt.close();
+					level = false;
 					break;
 				default:
 					System.out.println("Your input didn't match any of the choices");
 					break;
 				}
-
-				/*
-				 * if (c == 1) { System.out.println("please enter a cname:"); while ((cname =
-				 * in.readLine()) == null && cname.length() == 0) ;
-				 * System.out.println("please enter a dname:"); while ((dname = in.readLine())
-				 * == null && dname.length() == 0) ; Course course = new Course();
-				 * System.out.println(course.getCourse(cname, dname, con.stmt)); } else if (c ==
-				 * 2) { System.out.println("please enter your query below:"); while ((sql =
-				 * in.readLine()) == null && sql.length() == 0) System.out.println(sql);
-				 * ResultSet rs=con.stmt.executeQuery(sql); ResultSetMetaData rsmd =
-				 * rs.getMetaData(); int numCols = rsmd.getColumnCount(); while (rs.next()) {
-				 * System.out.print("cname:"); for (int i=1; i<=numCols;i++)
-				 * System.out.print(rs.getString(i)+"  "); System.out.println(""); }
-				 * System.out.println(" "); rs.close(); } else { con.stmt.close(); break; }
-				 */
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
