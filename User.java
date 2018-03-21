@@ -49,7 +49,7 @@ public class User extends UberUser
 				String sql = String.format("insert into uu (login, name, address, phone, password) values('%s', '%s', '%s', %d, '%s');", 
 						login, name, address, phoneNumber, password);
 				int rs = 0;
-				System.out.println("executing " + sql);
+//				System.out.println("executing " + sql);
 				try
 				{
 					rs = this.getStmt().executeUpdate(sql);
@@ -80,7 +80,7 @@ public class User extends UberUser
 		String sqlLoginOfFeedback = String.format("select login from feedback where fid = '%d'", fid);
 		String loginOutput = "";
 		ResultSet rsLogin = null;
-		System.out.println("executing " + sqlLoginOfFeedback);
+//		System.out.println("executing " + sqlLoginOfFeedback);
 		try
 		{
 			rsLogin = this.getStmt().executeQuery(sqlLoginOfFeedback);
@@ -107,7 +107,7 @@ public class User extends UberUser
 		String sql = String.format("insert into rates values('%s', %d, %d)", this.getLogin(), fid, rating);
 		String output = "";
 		int rs;
-		System.out.println("executing " + sql);
+//		System.out.println("executing " + sql);
 		try
 		{
 			rs = this.getStmt().executeUpdate(sql);
@@ -143,7 +143,7 @@ public class User extends UberUser
 		String sql = String.format("insert into trust values('%s', '%s', %b)", this.getLogin(), uuLogin, isTrusted);
 		String output = "";
 		int rs;
-		System.out.println("executing " + sql);
+//		System.out.println("executing " + sql);
 		try
 		{
 			rs = this.getStmt().executeUpdate(sql);
@@ -195,7 +195,7 @@ public class User extends UberUser
 					this.getLogin());
 		String output = "";
 		ResultSet rs = null;
-		System.out.println("executing " + sql);
+//		System.out.println("executing " + sql);
 		try
 		{
 			rs = this.getStmt().executeQuery(sql);
@@ -272,7 +272,7 @@ public class User extends UberUser
 				+ "(select login from reserve where vin = %d) group by r.vin order by count(*) desc", vin);
 		String output = "";
 		ResultSet rs = null;
-		System.out.println("executing " + sql);
+//		System.out.println("executing " + sql);
 		try
 		{
 			rs = this.getStmt().executeQuery(sql);
