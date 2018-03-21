@@ -72,7 +72,6 @@ public class User extends UberUser
 	}
 
 	/**
-	 * @author Enea
 	 * @param fid
 	 *            int variable representing the ID of a feedback
 	 * @param rating
@@ -133,7 +132,6 @@ public class User extends UberUser
 	}
 
 	/**
-	 * @author Enea
 	 * @param uuLogin
 	 *            String variable representing the ID of a user
 	 * @param isTrusted
@@ -170,7 +168,6 @@ public class User extends UberUser
 	}
 
 	/**
-	 * @author Enea
 	 * @param category
 	 *            String variable representing the category of the car (sedan,
 	 *            suv, etc)
@@ -226,7 +223,6 @@ public class User extends UberUser
 	}
 
 	/**
-	 * @author Enea
 	 * @param udLogin
 	 *            String variable representing a specific uber driver
 	 * @param numberofFeedbacks
@@ -269,7 +265,6 @@ public class User extends UberUser
 	}
 
 	/**
-	 * @author Enea
 	 * @param vin
 	 *            int variable representing the car that was just reserved
 	 * @return return String variable that outputs all the suggested cars based
@@ -304,7 +299,6 @@ public class User extends UberUser
 	}
 
 	/**
-	 * @author Enea
 	 * @param uuLogin1
 	 *            String variable representing the first user
 	 * @param uuLogin2
