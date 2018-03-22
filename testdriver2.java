@@ -13,7 +13,7 @@ public class testdriver2 {
 	static Connector2 con;
 
 	/**
-	 * Initial display menu
+	 * Prints the initial display menu.
 	 */
 	public static void displayMenu() {
 		System.out.println("        Welcome to UUber System     ");
@@ -24,7 +24,7 @@ public class testdriver2 {
 	}
 
 	/**
-	 * Logged in menu when participant is a driver and user
+	 * Prints the logged in menu when participant is a driver and user.
 	 */
 	public static void displayLoginMenu() {
 		System.out.println("Do you want to proceed as a User or a Driver?");
@@ -35,7 +35,7 @@ public class testdriver2 {
 	}
 
 	/**
-	 * User menu
+	 * Prints the user menu.
 	 */
 	public static void displayUserMenu() {
 		System.out.println("1. Make a reservation");
@@ -54,7 +54,7 @@ public class testdriver2 {
 	}
 
 	/**
-	 * Driver menu
+	 * Prints the driver menu.
 	 */
 	public static void displayDriverMenu() {
 		System.out.println("1. Add new car");
@@ -64,7 +64,7 @@ public class testdriver2 {
 	}
 
 	/**
-	 * Admin menu
+	 * Prints the admin menu.
 	 */
 	public static void displayAdminMenu() {
 		System.out.println("1. Award Top Users");
@@ -73,7 +73,7 @@ public class testdriver2 {
 	}
 
 	/**
-	 * Registration menu
+	 * Prints the registration menu.
 	 */
 	public static void displayRegisterMenu() {
 		System.out.println("What would you like to register as?");
@@ -84,7 +84,7 @@ public class testdriver2 {
 	}
 
 	/**
-	 * Are you already a driver prompt
+	 * Prints the are you already a driver prompt.
 	 */
 	public static void displayUserRegisterMenu() {
 		System.out.println("Are you already a driver?");
@@ -95,7 +95,7 @@ public class testdriver2 {
 	}
 
 	/**
-	 * Are you already a user prompt
+	 * Prints the are you already a user prompt.
 	 */
 	public static void displayDriverRegisterMenu() {
 		System.out.println("Are you already a user?");
@@ -106,7 +106,7 @@ public class testdriver2 {
 	}
 
 	/**
-	 * Registers an existing driver as a new user
+	 * Registers an existing driver as a new user.
 	 * 
 	 * @throws IOException
 	 */
@@ -123,13 +123,9 @@ public class testdriver2 {
 		driver = new Driver(username, password, con.stmt);
 		if (driver.loginToUber(username, password)) {
 			// they have successfully logged in as a driver, create a user account for them
-			// (probably some user method)
-
 			user = new User(username, password, con.stmt);
 
-			// here, I'll want to pass in name, address, phoneNumber already existing from driver
-			// so don't return boolean, just return null or the object
-			if (user.registerForUber(username, password, driver.getName(), driver.getAddress(), driver.getPhoneNumber())) {
+			if (user.registerForUber()) {
 				System.out.println("User registration successful");
 
 				// at this point I know I can login as both
@@ -143,7 +139,7 @@ public class testdriver2 {
 	}
 
 	/**
-	 * Registers a new user
+	 * Registers a new user.
 	 * 
 	 * @throws IOException
 	 */
@@ -166,15 +162,13 @@ public class testdriver2 {
 			;
 		
 		System.out.println("Please enter your name:");
-		while ((name = in.readLine()) == null)
+		while ((name = in.readLine()) == null || name.length() == 0)
 			;
-		if (name.length() == 0) name = null;
 		System.out.println("Please enter your address:");
-		while ((address = in.readLine()) == null)
+		while ((address = in.readLine()) == null || address.length() == 0)
 			;
-		if (address.length() == 0) address = null;
 		System.out.println("Please enter your phone number (only digits):");
-		while ((phoneNumber = in.readLine()) == null)
+		while ((phoneNumber = in.readLine()) == null || phoneNumber.length() == 0)
 			;
 		
 		if (!password.equals(password2)) {
@@ -189,16 +183,10 @@ public class testdriver2 {
 		        System.out.println("Phone number can only consist of digits");
 		        return;
 		    }
-		} else {
-			phoneNumber = null;
 		}
-
-		Integer phoneNumberInteger = null;
-		if (phoneNumber != null) {
-			phoneNumberInteger = Integer.parseInt(phoneNumber);
-		}
-		user = new User(username, password, con.stmt);
-		if (user.registerForUber(username, password, name, address, phoneNumberInteger)) {
+		
+		user = new User(username, password, con.stmt, name, address, Integer.parseInt(phoneNumber));
+		if (user.registerForUber()) {
 			System.out.println("User registration successful");
 			handleUserMenu();
 		} else {
@@ -207,7 +195,7 @@ public class testdriver2 {
 	}
 
 	/**
-	 * Registers an existing user as a new driver
+	 * Registers an existing user as a new driver.
 	 * 
 	 * @throws IOException
 	 */
@@ -225,8 +213,8 @@ public class testdriver2 {
 		if (user.loginToUber(username, password)) {
 			// they have successfully logged in as a user, create a driver account for them
 			// (probably some driver method)
-			driver = new Driver(username, password, con.stmt);
-			if (driver.registerForUber(username, password, user.getName(), user.getAddress(), user.getPhoneNumber())) {
+			driver = new Driver(username, password, con.stmt, user.getName(), user.getAddress(), user.getPhoneNumber());
+			if (driver.registerForUber()) {
 				System.out.println("Driver registration successful");
 
 				// at this point I know I can login as both
@@ -240,7 +228,7 @@ public class testdriver2 {
 	}
 
 	/**
-	 * Registers a new driver
+	 * Registers a new driver.
 	 * 
 	 * @throws IOException
 	 */
@@ -261,15 +249,13 @@ public class testdriver2 {
 		while ((password2 = in.readLine()) == null || password2.length() == 0)
 			;
 		System.out.println("Please enter your name:");
-		while ((name = in.readLine()) == null)
+		while ((name = in.readLine()) == null || name.length() == 0)
 			;
-		if (name.length() == 0) name = null;
 		System.out.println("Please enter your address:");
-		while ((address = in.readLine()) == null)
+		while ((address = in.readLine()) == null || address.length() == 0)
 			;
-		if (address.length() == 0) address = null;
 		System.out.println("Please enter your phone number (only digits):");
-		while ((phoneNumber = in.readLine()) == null)
+		while ((phoneNumber = in.readLine()) == null || phoneNumber.length() == 0)
 			;
 
 		if (!password.equals(password2)) {
@@ -284,13 +270,6 @@ public class testdriver2 {
 		        System.out.println("Phone number can only consist of digits");
 		        return;
 		    }
-		} else {
-			phoneNumber = null;
-		}
-
-		Integer phoneNumberInteger = null;
-		if (phoneNumber != null) {
-			phoneNumberInteger = Integer.parseInt(phoneNumber);
 		}
 		
 		try {
@@ -301,8 +280,8 @@ public class testdriver2 {
 	        return;
 	    }
 
-		driver = new Driver(username, password, con.stmt);
-		if (driver.registerForUber(username, password, name, address, phoneNumberInteger)) {
+		driver = new Driver(username, password, con.stmt, name, address, Integer.parseInt(phoneNumber));
+		if (driver.registerForUber()) {
 			System.out.println("Driver registration successful");
 			handleDriverMenu();
 		} else {
@@ -350,7 +329,7 @@ public class testdriver2 {
 	}
 
 	/**
-	 * Handles driver registration
+	 * Handles driver registration.
 	 * 
 	 * @throws IOException
 	 */
@@ -389,7 +368,7 @@ public class testdriver2 {
 	}
 
 	/**
-	 * Starts the registration process
+	 * Starts the registration process.
 	 * 
 	 * @throws IOException
 	 */
@@ -428,7 +407,7 @@ public class testdriver2 {
 	}
 
 	/**
-	 * Handles login for someone who is a user and a driver
+	 * Handles login for someone who is a user and a driver.
 	 * 
 	 * @throws IOException
 	 */
@@ -467,7 +446,7 @@ public class testdriver2 {
 	}
 
 	/**
-	 * User options
+	 * Handles user options.
 	 * 
 	 * @throws IOException
 	 */
@@ -649,7 +628,7 @@ public class testdriver2 {
 		}
 	}
 
-	/**
+	/**	 
 	 * Stats options
 	 * 
 	 * @throws IOException
@@ -682,6 +661,7 @@ public class testdriver2 {
 			switch (c) {
 			case 1:
 				// add new car
+				
 				break;
 			case 2:
 				// update car
@@ -698,7 +678,7 @@ public class testdriver2 {
 	}
 
 	/**
-	 * Admin options
+	 * Handles admin options.
 	 * 
 	 * @throws IOException
 	 */

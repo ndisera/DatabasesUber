@@ -2,15 +2,35 @@ package cs5530;
 
 import java.sql.*;
 
+/**
+ * Provides all of the features for a user or "rider" of UUber.
+ * 
+ * @author Nico DiSera and Enea Mano
+ */
 public class User extends UberUser
 {
-	// Constructor 1
+	/**
+	 * Creates a user with the minimum required fields.
+	 * 
+	 * @param login		user login
+	 * @param password	user password
+	 * @param stmt		statement of connection used
+	 */
 	public User(String login, String password, Statement stmt)
 	{
 		super(login, password, stmt);
 	}
 	
-	// Constructor 2
+	/**
+	 * Creates a user and allows non-required fields to be filled.
+	 * 
+	 * @param login			user login
+	 * @param password		user password
+	 * @param stmt			statement of connection used
+	 * @param name			name of user
+	 * @param address		address of user
+	 * @param phoneNumber	phone number of user
+	 */
 	public User(String login, String password, Statement stmt, String name, String address, int phoneNumber) {
 		super(login, password, stmt, name, address, phoneNumber);
 	}
@@ -41,40 +61,15 @@ public class User extends UberUser
 		return true;
 	}
 	
-	public boolean registerForUber(String login, String password, String name, String address, Integer phoneNumber) {
+	public boolean registerForUber() {
 		// make sure login returns false
-				if (loginToUber(login, password)) {
+				if (loginToUber(this.getLogin(), this.getPassword())) {
 					return false;
 				}
 				// insert into table
 				// sql will vary depending on what is null and what is not
-				String sql;
-				
-				if (name == null && address == null && phoneNumber == null) {
-					sql = String.format("insert into uu (login, password) values('%s', '%s');", 
-							login, password);
-				} else if (address == null && phoneNumber == null) {
-					sql = String.format("insert into uu (login, name, password) values('%s', '%s', '%s');", 
-							login, name, password);
-				} else if (name == null && phoneNumber == null) {
-					sql = String.format("insert into uu (login, address, password) values('%s', '%s', '%s');", 
-							login, address, password);
-				} else if (name == null && address == null) {
-					sql = String.format("insert into uu (login, phone, password) values('%s', %d, '%s');", 
-							login, phoneNumber, password);
-				} else if (phoneNumber == null) {
-					sql = String.format("insert into uu (login, name, address, password) values('%s', '%s', '%s', '%s');", 
-							login, name, address, password);
-				} else if (address == null) {
-					sql = String.format("insert into uu (login, name, phone, password) values('%s', '%s', %d, '%s');", 
-							login, name, phoneNumber, password);
-				} else if (name == null) {
-					sql = String.format("insert into uu (login, address, phone, password) values('%s', '%s', %d, '%s');", 
-							login, address, phoneNumber, password);
-				} else {
-					sql = String.format("insert into uu (login, name, address, phone, password) values('%s', '%s', '%s', %d, '%s');", 
-							login, name, address, phoneNumber, password);
-				}
+				String sql = String.format("insert into uu (login, name, address, phone, password) values('%s', '%s', '%s', %d, '%s');", 
+							this.getLogin(), this.getName(), this.getAddress(), this.getPhoneNumber(), this.getPassword());
 				
 				int rs = 0;
 //				System.out.println("executing " + sql);
