@@ -1,17 +1,27 @@
 package cs5530;
 
-import java.sql.ResultSet;
 import java.sql.Statement;
 
+/**
+ * Contains the bare necessities for any user of UUber.
+ * 
+ * @author Nico DiSera and Enea Mano
+ */
 public abstract class UberUser {
 	private String login;
 	private String password;
 	private Statement stmt;
 	private String name;
 	private String address;
-	private Integer phoneNumber;
+	private int phoneNumber;
 
-	// Constructor 1
+	/**
+	 * Creates a user with the minimum required fields.
+	 * 
+	 * @param login		user login
+	 * @param password	user password
+	 * @param stmt		statement of connection used
+	 */
 	public UberUser(String login, String password, Statement stmt)
 	{
 		this.login = login;
@@ -19,8 +29,17 @@ public abstract class UberUser {
 		this.stmt = stmt;
 	}
 	
-	// Constructor 2
-	public UberUser(String login, String password, Statement stmt, String name, String address, Integer phoneNumber) {
+	/**
+	 * Creates a user and allows non-required fields to be filled.
+	 * 
+	 * @param login			user login
+	 * @param password		user password
+	 * @param stmt			statement of connection used
+	 * @param name			name of user
+	 * @param address		address of user
+	 * @param phoneNumber	phone number of user
+	 */
+	public UberUser(String login, String password, Statement stmt, String name, String address, int phoneNumber) {
 		this.login = login;
 		this.password = password;
 		this.stmt = stmt;
@@ -30,23 +49,20 @@ public abstract class UberUser {
 	}
 	
 	/**
-	 * Attempts to login to UUber
-	 * @param login
-	 * @param password
+	 * Attempts to login to UUber and sets other properties of user if successful.
+	 * 
+	 * @param login		user login
+	 * @param password	user password
 	 * @return true if login was successful, false otherwise
 	 */
 	public abstract boolean loginToUber(String login, String password);
 	
 	/**
-	 * Attempts to register for UUber
-	 * @param login
-	 * @param password
-	 * @param name
-	 * @param address
-	 * @param phoneNumber
+	 * Attempts to register for UUber.
+	 * 
 	 * @return true if registration successful, false otherwise
 	 */
-	public abstract boolean registerForUber(String login, String password, String name, String address, Integer phoneNumber);
+	public abstract boolean registerForUber();
 	
 	// getters
 	
