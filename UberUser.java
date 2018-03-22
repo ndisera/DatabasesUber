@@ -9,9 +9,9 @@ public abstract class UberUser {
 	private Statement stmt;
 	private String name;
 	private String address;
-	private int phoneNumber;
+	private Integer phoneNumber;
 
-	// Constructor for the User class
+	// Constructor 1
 	public UberUser(String login, String password, Statement stmt)
 	{
 		this.login = login;
@@ -19,7 +19,8 @@ public abstract class UberUser {
 		this.stmt = stmt;
 	}
 	
-	public UberUser(String login, String password, Statement stmt, String name, String address, int phoneNumber) {
+	// Constructor 2
+	public UberUser(String login, String password, Statement stmt, String name, String address, Integer phoneNumber) {
 		this.login = login;
 		this.password = password;
 		this.stmt = stmt;
@@ -28,9 +29,24 @@ public abstract class UberUser {
 		this.phoneNumber = phoneNumber;
 	}
 	
+	/**
+	 * Attempts to login to UUber
+	 * @param login
+	 * @param password
+	 * @return true if login was successful, false otherwise
+	 */
 	public abstract boolean loginToUber(String login, String password);
 	
-	public abstract boolean registerForUber(String login, String password, String name, String address, int phoneNumber);
+	/**
+	 * Attempts to register for UUber
+	 * @param login
+	 * @param password
+	 * @param name
+	 * @param address
+	 * @param phoneNumber
+	 * @return true if registration successful, false otherwise
+	 */
+	public abstract boolean registerForUber(String login, String password, String name, String address, Integer phoneNumber);
 	
 	// getters
 	
@@ -80,7 +96,7 @@ public abstract class UberUser {
 		this.address = address;
 	}
 	
-	public void setPhoneNumber(int phoneNumber) {
+	public void setPhoneNumber(Integer phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}
 }

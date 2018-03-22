@@ -115,10 +115,10 @@ public class testdriver2 {
 		String username;
 		String password;
 		System.out.println("Please enter your username:");
-		while ((username = in.readLine()) == null && username.length() == 0)
+		while ((username = in.readLine()) == null || username.length() == 0)
 			;
 		System.out.println("Please enter your password:");
-		while ((password = in.readLine()) == null && password.length() == 0)
+		while ((password = in.readLine()) == null || password.length() == 0)
 			;
 		driver = new Driver(username, password, con.stmt);
 		if (driver.loginToUber(username, password)) {
@@ -154,21 +154,25 @@ public class testdriver2 {
 		String name;
 		String address;
 		String phoneNumber;
+		
 		System.out.println("Please enter your desired username:");
-		while ((username = in.readLine()) == null && username.length() == 0)
+		while ((username = in.readLine()) == null || username.length() == 0)
 			;
 		System.out.println("Please enter your desired password:");
-		while ((password = in.readLine()) == null && password.length() == 0)
+		while ((password = in.readLine()) == null || password.length() == 0)
 			;
 		System.out.println("Please enter your password again for confirmation:");
-		while ((password2 = in.readLine()) == null && password2.length() == 0)
+		while ((password2 = in.readLine()) == null || password2.length() == 0)
 			;
+		
 		System.out.println("Please enter your name:");
 		while ((name = in.readLine()) == null)
 			;
+		if (name.length() == 0) name = null;
 		System.out.println("Please enter your address:");
 		while ((address = in.readLine()) == null)
 			;
+		if (address.length() == 0) address = null;
 		System.out.println("Please enter your phone number (only digits):");
 		while ((phoneNumber = in.readLine()) == null)
 			;
@@ -177,16 +181,24 @@ public class testdriver2 {
 			System.out.println("Error: passwords did not match");
 			return;
 		}
-		try {
-	        Integer.parseInt(phoneNumber);
-	    }
-	    catch( Exception e ) {
-	        System.out.println("Phone number can only consist of digits");
-	        return;
-	    }
+		if (phoneNumber.length() != 0) {
+			try {
+		        Integer.parseInt(phoneNumber);
+		    }
+		    catch( Exception e ) {
+		        System.out.println("Phone number can only consist of digits");
+		        return;
+		    }
+		} else {
+			phoneNumber = null;
+		}
 
+		Integer phoneNumberInteger = null;
+		if (phoneNumber != null) {
+			phoneNumberInteger = Integer.parseInt(phoneNumber);
+		}
 		user = new User(username, password, con.stmt);
-		if (user.registerForUber(username, password, name, address, Integer.parseInt(phoneNumber))) {
+		if (user.registerForUber(username, password, name, address, phoneNumberInteger)) {
 			System.out.println("User registration successful");
 			handleUserMenu();
 		} else {
@@ -204,10 +216,10 @@ public class testdriver2 {
 		String username;
 		String password;
 		System.out.println("Please enter your username:");
-		while ((username = in.readLine()) == null && username.length() == 0)
+		while ((username = in.readLine()) == null || username.length() == 0)
 			;
 		System.out.println("Please enter your password:");
-		while ((password = in.readLine()) == null && password.length() == 0)
+		while ((password = in.readLine()) == null || password.length() == 0)
 			;
 		user = new User(username, password, con.stmt);
 		if (user.loginToUber(username, password)) {
@@ -240,20 +252,22 @@ public class testdriver2 {
 		String address;
 		String phoneNumber;
 		System.out.println("Please enter your desired username:");
-		while ((username = in.readLine()) == null && username.length() == 0)
+		while ((username = in.readLine()) == null || username.length() == 0)
 			;
 		System.out.println("Please enter your desired password:");
-		while ((password = in.readLine()) == null && password.length() == 0)
+		while ((password = in.readLine()) == null || password.length() == 0)
 			;
 		System.out.println("Please enter your password again for confirmation:");
-		while ((password2 = in.readLine()) == null && password2.length() == 0)
+		while ((password2 = in.readLine()) == null || password2.length() == 0)
 			;
 		System.out.println("Please enter your name:");
 		while ((name = in.readLine()) == null)
 			;
+		if (name.length() == 0) name = null;
 		System.out.println("Please enter your address:");
 		while ((address = in.readLine()) == null)
 			;
+		if (address.length() == 0) address = null;
 		System.out.println("Please enter your phone number (only digits):");
 		while ((phoneNumber = in.readLine()) == null)
 			;
@@ -262,6 +276,23 @@ public class testdriver2 {
 			System.out.println("Error: passwords did not match");
 			return;
 		}
+		if (phoneNumber.length() != 0) {
+			try {
+		        Integer.parseInt(phoneNumber);
+		    }
+		    catch( Exception e ) {
+		        System.out.println("Phone number can only consist of digits");
+		        return;
+		    }
+		} else {
+			phoneNumber = null;
+		}
+
+		Integer phoneNumberInteger = null;
+		if (phoneNumber != null) {
+			phoneNumberInteger = Integer.parseInt(phoneNumber);
+		}
+		
 		try {
 	        Integer.parseInt(phoneNumber);
 	    }
@@ -271,7 +302,7 @@ public class testdriver2 {
 	    }
 
 		driver = new Driver(username, password, con.stmt);
-		if (driver.registerForUber(username, password, name, address, Integer.parseInt(phoneNumber))) {
+		if (driver.registerForUber(username, password, name, address, phoneNumberInteger)) {
 			System.out.println("Driver registration successful");
 			handleDriverMenu();
 		} else {
@@ -290,7 +321,7 @@ public class testdriver2 {
 		boolean level = true;
 		while (level) {
 			displayUserRegisterMenu();
-			while ((choice = in.readLine()) == null && choice.length() == 0)
+			while ((choice = in.readLine()) == null || choice.length() == 0)
 				;
 			try {
 				c = Integer.parseInt(choice);
@@ -329,7 +360,7 @@ public class testdriver2 {
 		boolean level = true;
 		while (level) {
 			displayDriverRegisterMenu();
-			while ((choice = in.readLine()) == null && choice.length() == 0)
+			while ((choice = in.readLine()) == null || choice.length() == 0)
 				;
 			try {
 				c = Integer.parseInt(choice);
@@ -368,7 +399,7 @@ public class testdriver2 {
 		boolean level = true;
 		while (level) {
 			displayRegisterMenu();
-			while ((choice = in.readLine()) == null && choice.length() == 0)
+			while ((choice = in.readLine()) == null || choice.length() == 0)
 				;
 			try {
 				c = Integer.parseInt(choice);
@@ -407,7 +438,7 @@ public class testdriver2 {
 		boolean level = true;
 		while (level) {
 			displayLoginMenu();
-			while ((choice = in.readLine()) == null && choice.length() == 0)
+			while ((choice = in.readLine()) == null || choice.length() == 0)
 				;
 			try {
 				c = Integer.parseInt(choice);
@@ -446,7 +477,7 @@ public class testdriver2 {
 		boolean level = true;
 		while (level) {
 			displayUserMenu();
-			while ((choice = in.readLine()) == null && choice.length() == 0)
+			while ((choice = in.readLine()) == null || choice.length() == 0)
 				;
 			try {
 				c = Integer.parseInt(choice);
@@ -473,10 +504,10 @@ public class testdriver2 {
 				try
 				{
 					System.out.println("Please enter the feedback fid you want to rate:");
-					while ((input = in.readLine()) == null && choice.length() == 0);
+					while ((input = in.readLine()) == null || choice.length() == 0);
 					fid = Integer.parseInt(input);
 					System.out.println("Please enter the rating for the feedback between 0-2:");
-					while ((input = in.readLine()) == null && choice.length() == 0);
+					while ((input = in.readLine()) == null || choice.length() == 0);
 					rating = Integer.parseInt(input);
 					if (rating < 0 || rating > 2)
 					{
@@ -496,9 +527,9 @@ public class testdriver2 {
 				// edit trusted users
 				System.out.println("Please enter the login of the user you want to trust/distrust:");
 				String uuLogin;
-				while ((uuLogin = in.readLine()) == null && choice.length() == 0);
+				while ((uuLogin = in.readLine()) == null || choice.length() == 0);
 				System.out.println("Do you trust him ? (yes/no) ");
-				while ((input = in.readLine()) == null && choice.length() == 0);
+				while ((input = in.readLine()) == null || choice.length() == 0);
 				boolean isTrusted;
 				if (input.toLowerCase().equals("yes"))
 					isTrusted = true;
@@ -516,18 +547,18 @@ public class testdriver2 {
 				// browse cars
 				System.out.println("Please enter car's category or leave it blank");
 				String category;
-				while ((category = in.readLine()) == null && choice.length() == 0);
+				while ((category = in.readLine()) == null);
 				
 				System.out.println("Please enter car's address or leave it blank");
 				String address;
-				while ((address = in.readLine()) == null && choice.length() == 0);
+				while ((address = in.readLine()) == null);
 				
 				System.out.println("Please enter car's model or leave it blank");
 				String model;
-				while ((model = in.readLine()) == null && choice.length() == 0);
+				while ((model = in.readLine()) == null);
 				
 				System.out.println("Do you want the results sorted by the feedback of only the users you trust? (yes/no) ");
-				while ((input = in.readLine()) == null && choice.length() == 0);
+				while ((input = in.readLine()) == null || choice.length() == 0);
 				boolean sortByFeedbacks;
 				if (input.toLowerCase().equals("no"))
 					sortByFeedbacks = true;
@@ -545,9 +576,9 @@ public class testdriver2 {
 				// get most useful feedback for a driver
 				System.out.println("Please enter the login of the driver you want feedback for:");
 				String udLogin;
-				while ((udLogin = in.readLine()) == null && choice.length() == 0);
+				while ((udLogin = in.readLine()) == null || choice.length() == 0);
 				System.out.println("Please enter the number of feedbacks you want:");
-				while ((input = in.readLine()) == null && choice.length() == 0);
+				while ((input = in.readLine()) == null || choice.length() == 0);
 				int numberOfFeedbacks;
 				try
 				{
@@ -564,7 +595,7 @@ public class testdriver2 {
 			case 9:
 				// get suggested cars
 				System.out.println("Please enter the user vin of the car you want to get suggestions based on");
-				while ((input = in.readLine()) == null && choice.length() == 0);
+				while ((input = in.readLine()) == null || choice.length() == 0);
 				int vin;
 				try
 				{
@@ -582,7 +613,7 @@ public class testdriver2 {
 				// get user degrees of separation
 				System.out.println("Please enter the user login of the user you want to know the separation degree of:");;
 				String uuLogin2;
-				while ((uuLogin2 = in.readLine()) == null && choice.length() == 0);
+				while ((uuLogin2 = in.readLine()) == null || choice.length() == 0);
 				String degree = user.getSeparationDegree(user.getLogin(), uuLogin2);
 				System.out.println(degree);
 				break;
@@ -611,7 +642,7 @@ public class testdriver2 {
 		boolean level = true;
 		while (level) {
 			displayDriverMenu();
-			while ((choice = in.readLine()) == null && choice.length() == 0)
+			while ((choice = in.readLine()) == null || choice.length() == 0)
 				;
 			try {
 				c = Integer.parseInt(choice);
@@ -648,7 +679,7 @@ public class testdriver2 {
 		boolean level = true;
 		while (level) {
 			displayAdminMenu();
-			while ((choice = in.readLine()) == null && choice.length() == 0)
+			while ((choice = in.readLine()) == null || choice.length() == 0)
 				;
 			try {
 				c = Integer.parseInt(choice);
@@ -686,7 +717,7 @@ public class testdriver2 {
 
 			while (level) {
 				displayMenu();
-				while ((choice = in.readLine()) == null && choice.length() == 0)
+				while ((choice = in.readLine()) == null || choice.length() == 0)
 					;
 				try {
 					c = Integer.parseInt(choice);
@@ -699,10 +730,10 @@ public class testdriver2 {
 				case 1:
 					// login
 					System.out.println("Please enter your username:");
-					while ((username = in.readLine()) == null && username.length() == 0)
+					while ((username = in.readLine()) == null || username.length() == 0)
 						;
 					System.out.println("Please enter your password:");
-					while ((password = in.readLine()) == null && password.length() == 0)
+					while ((password = in.readLine()) == null || password.length() == 0)
 						;
 
 					// then actually login

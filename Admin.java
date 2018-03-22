@@ -7,7 +7,7 @@ public class Admin {
 	public String password;
 	public Statement stmt;
 
-	// Constructor for the User class
+	// Constructor for the Admin class
 	public Admin(String login, String password, Statement stmt) {
 		this.login = login;
 		this.password = password;
