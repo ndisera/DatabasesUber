@@ -543,6 +543,7 @@ public class User extends UberUser {
 		} catch (Exception e)
 		{
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		} finally
 		{
 			freeResultSetResources(rs);
@@ -564,7 +565,7 @@ public class User extends UberUser {
 		
 		for (String category : categories)
 		{
-			sql = String.format("select r.vin, uc.category, count(*) as totalRides from uc, ride r where r.vin=uc.vin and uc.category=%s group by uc.category, r.vin order by count(*) desc limit %d", category, m);
+			sql = String.format("select r.vin, uc.category, count(*) as totalRides from uc, ride r where r.vin=uc.vin and uc.category='%s' group by uc.category, r.vin order by count(*) desc limit %d", category, m);
 			ResultSet rs = null;
 			// System.out.println("executing " + sql);
 			try
@@ -579,6 +580,7 @@ public class User extends UberUser {
 			} catch (Exception e)
 			{
 				System.out.println("cannot execute the query");
+				e.printStackTrace(System.out);
 			} finally
 			{
 				freeResultSetResources(rs);
@@ -601,7 +603,7 @@ public class User extends UberUser {
 		
 		for (String category : categories)
 		{
-			sql = String.format("select r.vin, uc.category, avg(cost) as avgCost from uc, ride r where r.vin=uc.vin and uc.category=%s group by uc.category, r.vin order by avg(cost) desc limit %d", category, m);
+			sql = String.format("select r.vin, uc.category, avg(cost) as avgCost from uc, ride r where r.vin=uc.vin and uc.category= '%s' group by uc.category, r.vin order by avg(cost) desc limit %d", category, m);
 			ResultSet rs = null;
 			// System.out.println("executing " + sql);
 			try
