@@ -57,4 +57,67 @@ public class Admin {
 		}
 		return true;
 	}
+	
+	/**
+	 * Get the most trusted users from the database. 
+	 * @param m -> int variable that specifies the number of users to be listed
+	 * @return output -> string that contains the most trusted users
+	 */
+	public String getMostTrustedUsers(int m) {
+		String sql = String.format("select t.login1, count(t.login2)-(select count(t1.login2) from trust t1 "
+				+ "where t1.is_Trusted=0 and t1.login1=t.login1) as totalTrustees "
+				+ "from trust t group by t.login1 order by totalTrustees desc limit %d", m);
+		String output = "";
+		ResultSet rs = null;
+//		System.out.println("executing " + sql);
+		try {
+			rs = stmt.executeQuery(sql);
+			while (rs.next()) {
+				output += String.format(" %s %d \n", rs.getString("login1"), rs.getInt("totalTrustees"));
+			}
+
+			rs.close();
+		} catch (Exception e) {
+			System.out.println("cannot execute the query");
+		} finally {
+			try {
+				if (rs != null && !rs.isClosed())
+					rs.close();
+			} catch (Exception e) {
+				System.out.println("cannot close resultset");
+			}
+		}
+		return output;
+	}
+	
+	/**
+	 * Get the most usuful users from the database. 
+	 * @param m -> int variable that specifies the number of users to be listed
+	 * @return output -> string that contains the most useful users
+	 */
+	public String getMostUsefulUsers(int m) {
+		String sql = String.format(" select f.login, avg(r.rating) as avgRating from rates r, feedback f "
+				+ "where r.fid=f.fid group by f.login order by avgRating desc limit %d", m);
+		String output = "";
+		ResultSet rs = null;
+//		System.out.println("executing " + sql);
+		try {
+			rs = stmt.executeQuery(sql);
+			while (rs.next()) {
+				output += String.format(" %s %f \n", rs.getString("login"), rs.getFloat("avgRating"));
+			}
+
+			rs.close();
+		} catch (Exception e) {
+			System.out.println("cannot execute the query");
+		} finally {
+			try {
+				if (rs != null && !rs.isClosed())
+					rs.close();
+			} catch (Exception e) {
+				System.out.println("cannot close resultset");
+			}
+		}
+		return output;
+	}
 }

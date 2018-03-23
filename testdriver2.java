@@ -70,8 +70,9 @@ public class testdriver2 {
 	 */
 	public static void displayAdminMenu() {
 		System.out.println("        Welcome, Admin    ");
-		System.out.println("1. Award Top Users");
-		System.out.println("2. Exit");
+		System.out.println("1. Award Top Trusted Users");
+		System.out.println("2. Award Top Useful Users");
+		System.out.println("3. Exit");
 		System.out.println("Please enter your choice:");
 	}
 
@@ -763,11 +764,23 @@ public class testdriver2 {
 				continue;
 			}
 
+			String input = null;
 			switch (c) {
 			case 1:
-				// award top users
+				// award top m trusted users
+				System.out.println("Please enter the number of users you want to find:");
+				while ((input = in.readLine()) == null || input.length() == 0);
+				String trustedUsers = admin.getMostTrustedUsers(Integer.parseInt(input));
+				System.out.println(trustedUsers);
 				break;
 			case 2:
+				// award top m useful users
+				System.out.println("Please enter the number of users you want to find:");
+				while ((input = in.readLine()) == null || input.length() == 0);
+				String usefulUsers = admin.getMostUsefulUsers(Integer.parseInt(input));
+				System.out.println(usefulUsers);
+				break;
+			case 3:
 				// go back
 				level = false;
 				break;
