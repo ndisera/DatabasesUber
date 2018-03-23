@@ -626,5 +626,42 @@ public class User extends UberUser {
 		
 		return output;
 	}
+	
+	/**
+	 * @param m int variable -> m 
+	 * @return output String variable which represents the best
+	 * 			drivers for each category
+	 */
+	public String getBestUDs(int m)
+	{
+		ArrayList<String> categories = getCategories();
+		String output="";
+		String sql = "";
+		
+		for (String category : categories)
+		{
+			sql = String.format("select uc.login, uc.category, avg(score) as avgScore from uc, feedback f where uc.vin=f.vin and uc.category='%s' group by uc.login, uc.category order by avg(score) desc limit %d", category, m);
+			ResultSet rs = null;
+			// System.out.println("executing " + sql);
+			try
+			{
+				rs = this.getStmt().executeQuery(sql);
+				while (rs.next())
+				{
+					output += String.format(" %s  %s %f \n", rs.getString("login"), rs.getString("category"), rs.getFloat("avgScore"));
+				}
+
+				rs.close();
+			} catch (Exception e)
+			{
+				System.out.println("cannot execute the query");
+			} finally
+			{
+				freeResultSetResources(rs);
+			}
+		}		
+		
+		return output;
+	}
 
 }

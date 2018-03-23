@@ -579,18 +579,22 @@ public class testdriver2 {
 				while ((input = in.readLine()) == null || input.length() == 0);
 				switch (Integer.parseInt(input)) {
 				case 1:
-					System.out.println("Please enter the number of cars you want to display:");
+					System.out.println("Please enter the number of cars you want to display for each category:");
 					while ((input = in.readLine()) == null || input.length() == 0);
 					String popularCars = user.getMostPopularUCs(Integer.parseInt(input));
 					System.out.println(popularCars);
 					break;
 				case 2:
-					System.out.println("Please enter the number of cars you want to display:");
+					System.out.println("Please enter the number of cars you want to display for each category:");
 					while ((input = in.readLine()) == null || input.length() == 0);
 					String expensiveCars = user.getMostExpensiveUCs(Integer.parseInt(input));
 					System.out.println(expensiveCars);
 					break;
 				case 3:
+					System.out.println("Please enter the number of drivers you want to display for each category:");
+					while ((input = in.readLine()) == null || input.length() == 0);
+					String bestDrivers = user.getBestUDs(Integer.parseInt(input));
+					System.out.println(bestDrivers);
 					break;
 				default:
 					System.out.println("Your input didn't match any of the choices");
