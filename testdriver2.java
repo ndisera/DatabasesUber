@@ -504,19 +504,37 @@ public class testdriver2 {
 				break;
 			case 7:
 				// browse cars
+				String model_address = "";
+				String category_address = "";
+				String model_category = "";
 				System.out.println("Please enter car's category or leave it blank");
 				String category;
-				while ((category = in.readLine()) == null)
-					;
-
+				while ((category = in.readLine()) == null);
+ 
 				System.out.println("Please enter car's address or leave it blank");
 				String address;
-				while ((address = in.readLine()) == null)
-					;
-
+				while ((address = in.readLine()) == null);
+				
+				if (!category.equals("") && !address.equals("")) 
+				{
+					System.out.println("Do you want to browse by category and address using AND or OR? (and/or)");
+					while ((category_address = in.readLine().toLowerCase()) == null);
+				}
+				
 				System.out.println("Please enter car's model or leave it blank");
 				String model;
 				while ((model = in.readLine()) == null);
+				
+				if (!address.equals("") && !model.equals("")) 
+				{
+					System.out.println("Do you want to browse by model and address using AND or OR? (and/or)");
+					while ((model_address = in.readLine().toLowerCase()) == null);
+				}
+				else if (!category.equals("") && address.equals("") && !model.equals(""))
+				{
+					System.out.println("Do you want to browse by model and category using AND or OR? (and/or)");
+					while ((model_category = in.readLine().toLowerCase()) == null);
+				}
 				
 				System.out.println("Do you want the results sorted by the feedback of only the users you trust? (yes/no) ");
 				while ((input = in.readLine()) == null || input.length() == 0);
@@ -529,7 +547,7 @@ public class testdriver2 {
 					System.out.println("Wrong input");
 					break;
 				}
-				String cars = user.browseCars(category, address, model, sortByFeedbacks);
+				String cars = user.browseCars(category, address, model, model_address, category_address, model_category, sortByFeedbacks);
 				System.out.println(cars);
 				break;
 			case 8:

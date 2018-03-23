@@ -366,23 +366,47 @@ public class User extends UberUser {
 	 *            average score of just the trusted users (false)
 	 * @return return String variable that outputs the result of the query
 	 */
-	public String browseCars(String category, String address, String model, boolean sortByFeedbacks) {
-		String sql = "select uc.vin, category, address, model, avg(score) from feedback, ud, uc natural join is_c_types natural join c_types where ud.login=uc.login";
-		if (!category.equals(""))
-			sql += String.format(" and category = '%s'", category);
-		if (!model.equals(""))
-			sql += String.format(" and model = '%s'", model);
-		if (!address.equals(""))
-			sql += String.format(" and address = '%s'", address);
-		if (sortByFeedbacks)
-			sql += " and feedback.vin = uc.vin group by uc.vin, model order by avg(score) desc";
-		else
+	public String browseCars(String category, String address, String model,String model_address,String category_address,String model_category, boolean sortByFeedbacks) {
+		/*select uc.vin, uc.category, ct.model, ud.address, avg(score) 
+		 * from ud, is_c_types ict natural join c_types ct, uc left join feedback f on uc.vin=f.vin 
+		 * where ud.login=uc.login and ict.vin=uc.vin 
+		 * 
+		 * and (category = 'luxury' or model='Focus' or address='something') 
+		 * 
+		 * and f.login in (select login2 from trust where login1 = '%s') 
+		 * 
+		 * group by uc.vin, ct.model, ud.address order by avg(score) desc
+		
+		*/
+		String sql = "select uc.vin, uc.category, ct.model, ud.address, avg(score) "
+				+ "from ud, is_c_types ict natural join c_types ct, uc left join feedback f on uc.vin=f.vin "
+				+ "where ud.login=uc.login and ict.vin=uc.vin";
+		
+		if(!category.equals("") && !address.equals("") && !model.equals(""))
+			sql += String.format(" and (category = '%s' %s address='%s' %s model='%s')", category, category_address, address, model_address, model);
+		
+		else if (!category.equals("") && !address.equals(""))
+			sql += String.format(" and (category = '%s' %s address='%s')", category, category_address, address);
+		else if (!category.equals("") && !model.equals(""))
+			sql += String.format(" and (category = '%s' %s model='%s')", category, model_category, model);
+		else if (!address.equals("") && !model.equals(""))
+			sql += String.format(" and (address = '%s' %s model='%s')", address, model_address, model);
+		
+		else if (!category.equals(""))
+			sql += String.format(" and (category = '%s')", category);
+		else if (!address.equals(""))
+			sql += String.format(" and (address = '%s')", address);
+		else if (!model.equals(""))
+			sql += String.format(" and (model = '%s')", model);		
+		
+		if (!sortByFeedbacks)
 			sql += String.format(
-					" and feedback.vin = uc.vin and feedback.login in (select login2 from trust where login1 = '%s') group by uc.vin, model order by avg(score) desc",
-					this.getLogin());
+					" and f.login in (select login2 from trust where login1 = '%s')", this.getLogin());
+		sql += " group by uc.vin, ct.model, ud.address order by avg(score) desc";
+		
 		String output = "";
 		ResultSet rs = null;
-		// System.out.println("executing " + sql);
+		 System.out.println("executing " + sql);
 		try {
 			rs = this.getStmt().executeQuery(sql);
 			while (rs.next()) {
