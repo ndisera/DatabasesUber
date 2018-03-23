@@ -585,6 +585,10 @@ public class testdriver2 {
 					System.out.println(popularCars);
 					break;
 				case 2:
+					System.out.println("Please enter the number of cars you want to display:");
+					while ((input = in.readLine()) == null || input.length() == 0);
+					String expensiveCars = user.getMostExpensiveUCs(Integer.parseInt(input));
+					System.out.println(expensiveCars);
 					break;
 				case 3:
 					break;

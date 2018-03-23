@@ -1,6 +1,7 @@
 package cs5530;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 /**
  * Provides all of the features for a user or "rider" of UUber.
@@ -519,27 +520,23 @@ public class User extends UberUser {
 		
 		return "More than 2 degree of separation \n";
 	}
-	
-	
+
 	/**
-	 * @param m int variable -> m 
-	 * @return output String variable which represents the most popular 
-	 * 			rides for each category
-	 */
-	public String getMostPopularUCs(int m)
+	 *	@return -> returns an arraylist object contaning all the possible categories  
+	 **/	
+	public ArrayList<String> getCategories()
 	{
+		ArrayList<String> categories = new ArrayList<>();
 		String output="";
-		String sql = "select r.vin, uc.category from uc, ride r where r.vin=uc.vin group by uc.category, r.vin order by count(*) desc";
+		String sql = "select distinct category from uc";
 		ResultSet rs = null;
 		// System.out.println("executing " + sql);
 		try
 		{
 			rs = this.getStmt().executeQuery(sql);
-			int count = 0;
-			while (rs.next() && count < m)
+			while (rs.next())
 			{
-				output += String.format(" %d  %s\n", rs.getInt("vin"), rs.getString("category"));
-				count++;
+				categories.add(rs.getString("category"));
 			}
 
 			rs.close();
@@ -550,6 +547,80 @@ public class User extends UberUser {
 		{
 			freeResultSetResources(rs);
 		}
+		
+		return categories;
+	}
+	
+	/**
+	 * @param m int variable -> m 
+	 * @return output String variable which represents the most popular 
+	 * 			rides for each category
+	 */
+	public String getMostPopularUCs(int m)
+	{	
+		ArrayList<String> categories = getCategories();
+		String output="";
+		String sql = "";
+		
+		for (String category : categories)
+		{
+			sql = String.format("select r.vin, uc.category, count(*) as totalRides from uc, ride r where r.vin=uc.vin and uc.category=%s group by uc.category, r.vin order by count(*) desc limit %d", category, m);
+			ResultSet rs = null;
+			// System.out.println("executing " + sql);
+			try
+			{
+				rs = this.getStmt().executeQuery(sql);
+				while (rs.next())
+				{
+					output += String.format(" %d  %s %d \n", rs.getInt("vin"), rs.getString("category"), rs.getInt("totalRides"));
+				}
+
+				rs.close();
+			} catch (Exception e)
+			{
+				System.out.println("cannot execute the query");
+			} finally
+			{
+				freeResultSetResources(rs);
+			}
+		}		
+		
+		return output;
+	}
+	
+	/**
+	 * @param m int variable -> m 
+	 * @return output String variable which represents the most expensive 
+	 * 			rides for each category
+	 */
+	public String getMostExpensiveUCs(int m)
+	{
+		ArrayList<String> categories = getCategories();
+		String output="";
+		String sql = "";
+		
+		for (String category : categories)
+		{
+			sql = String.format("select r.vin, uc.category, avg(cost) as avgCost from uc, ride r where r.vin=uc.vin and uc.category=%s group by uc.category, r.vin order by avg(cost) desc limit %d", category, m);
+			ResultSet rs = null;
+			// System.out.println("executing " + sql);
+			try
+			{
+				rs = this.getStmt().executeQuery(sql);
+				while (rs.next())
+				{
+					output += String.format(" %d  %s %f \n", rs.getInt("vin"), rs.getString("category"), rs.getFloat("avgCost"));
+				}
+
+				rs.close();
+			} catch (Exception e)
+			{
+				System.out.println("cannot execute the query");
+			} finally
+			{
+				freeResultSetResources(rs);
+			}
+		}		
 		
 		return output;
 	}
