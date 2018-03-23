@@ -466,12 +466,11 @@ public class testdriver2 {
 				int fid, rating;
 				try {
 					System.out.println("Please enter the feedback fid you want to rate:");
-					while ((input = in.readLine()) == null || choice.length() == 0)
-						;
+					while ((input = in.readLine()) == null || input.length() == 0);
 					fid = Integer.parseInt(input);
+					input = null;
 					System.out.println("Please enter the rating for the feedback between 0-2:");
-					while ((input = in.readLine()) == null || choice.length() == 0)
-						;
+					while ((input = in.readLine()) == null || input.length() == 0);
 					rating = Integer.parseInt(input);
 					if (rating < 0 || rating > 2) {
 						System.out.println("Wrong input range");
@@ -488,11 +487,9 @@ public class testdriver2 {
 				// edit trusted users
 				System.out.println("Please enter the login of the user you want to trust/distrust:");
 				String uuLogin;
-				while ((uuLogin = in.readLine()) == null || choice.length() == 0)
-					;
+				while ((uuLogin = in.readLine()) == null || uuLogin.length() == 0);
 				System.out.println("Do you trust him ? (yes/no) ");
-				while ((input = in.readLine()) == null || choice.length() == 0)
-					;
+				while ((input = in.readLine()) == null || input.length() == 0);
 				boolean isTrusted;
 				if (input.toLowerCase().equals("yes"))
 					isTrusted = true;
@@ -519,13 +516,10 @@ public class testdriver2 {
 
 				System.out.println("Please enter car's model or leave it blank");
 				String model;
-				while ((model = in.readLine()) == null)
-					;
-
-				System.out.println(
-						"Do you want the results sorted by the feedback of only the users you trust? (yes/no) ");
-				while ((input = in.readLine()) == null || choice.length() == 0)
-					;
+				while ((model = in.readLine()) == null);
+				
+				System.out.println("Do you want the results sorted by the feedback of only the users you trust? (yes/no) ");
+				while ((input = in.readLine()) == null || input.length() == 0);
 				boolean sortByFeedbacks;
 				if (input.toLowerCase().equals("no"))
 					sortByFeedbacks = true;
@@ -542,11 +536,9 @@ public class testdriver2 {
 				// get most useful feedback for a driver
 				System.out.println("Please enter the login of the driver you want feedback for:");
 				String udLogin;
-				while ((udLogin = in.readLine()) == null || choice.length() == 0)
-					;
+				while ((udLogin = in.readLine()) == null || udLogin.length() == 0);
 				System.out.println("Please enter the number of feedbacks you want:");
-				while ((input = in.readLine()) == null || choice.length() == 0)
-					;
+				while ((input = in.readLine()) == null || input.length() == 0);
 				int numberOfFeedbacks;
 				try {
 					numberOfFeedbacks = Integer.parseInt(input);
@@ -560,8 +552,7 @@ public class testdriver2 {
 			case 9:
 				// get suggested cars
 				System.out.println("Please enter the user vin of the car you want to get suggestions based on");
-				while ((input = in.readLine()) == null || choice.length() == 0)
-					;
+				while ((input = in.readLine()) == null || input.length() == 0);
 				int vin;
 				try {
 					vin = Integer.parseInt(input);
@@ -578,13 +569,29 @@ public class testdriver2 {
 						.println("Please enter the user login of the user you want to know the separation degree of:");
 				;
 				String uuLogin2;
-				while ((uuLogin2 = in.readLine()) == null || choice.length() == 0)
-					;
+				while ((uuLogin2 = in.readLine()) == null || uuLogin2.length() == 0);
 				String degree = user.getSeparationDegree(user.getLogin(), uuLogin2);
 				System.out.println(degree);
 				break;
 			case 11:
 				// get statistics
+				displayStats();
+				while ((input = in.readLine()) == null || input.length() == 0);
+				switch (Integer.parseInt(input)) {
+				case 1:
+					System.out.println("Please enter the number of cars you want to display:");
+					while ((input = in.readLine()) == null || input.length() == 0);
+					String popularCars = user.getMostPopularUCs(Integer.parseInt(input));
+					System.out.println(popularCars);
+					break;
+				case 2:
+					break;
+				case 3:
+					break;
+				default:
+					System.out.println("Your input didn't match any of the choices");
+					break;
+				}
 				break;
 			case 12:
 				// go back
@@ -597,8 +604,19 @@ public class testdriver2 {
 		}
 	}
 
+	/**	 
+	 * Stats options
+	 * 
+	 * @throws IOException
+	 */
+	public static void displayStats() throws IOException {
+		System.out.println("1. List of the m most popular UCs for each category");
+		System.out.println("2. The list of m most expensive UCs for each category");
+		System.out.println("3. the list of m highly rated UDs for each category");
+	}
+	
 	/**
-	 * Handles driver options.
+	 * Driver options
 	 * 
 	 * @throws IOException
 	 */

@@ -496,10 +496,8 @@ public class User extends UberUser {
 		} finally {
 			freeResultSetResources(rs);
 		}
-
-		// select f1.login from favorites f, favorites f1 where f.vin=f1.vin and
-		// f.login<>f1.login and f.login='Zach'
-		String sqlSecondDegree = String.format("select f1.login from favorites f, favorites f1 "
+		String sqlSecondDegree = String.format(
+				"select f1.login from favorites f, favorites f1 "
 				+ "where f.vin=f1.vin and f.login<>f1.login and f.login='%s' and f1.login in "
 				+ "(select f1.login from favorites f, favorites f1 "
 				+ "where f.vin=f1.vin and f.login<>f1.login and f.login='%s')", uuLogin1, uuLogin2);
@@ -518,8 +516,42 @@ public class User extends UberUser {
 		} finally {
 			freeResultSetResources(rsSecondDegree);
 		}
-
+		
 		return "More than 2 degree of separation \n";
+	}
+	
+	
+	/**
+	 * @param m int variable -> m 
+	 * @return output String variable which represents the most popular 
+	 * 			rides for each category
+	 */
+	public String getMostPopularUCs(int m)
+	{
+		String output="";
+		String sql = "select r.vin, uc.category from uc, ride r where r.vin=uc.vin group by uc.category, r.vin order by count(*) desc";
+		ResultSet rs = null;
+		// System.out.println("executing " + sql);
+		try
+		{
+			rs = this.getStmt().executeQuery(sql);
+			int count = 0;
+			while (rs.next() && count < m)
+			{
+				output += String.format(" %d  %s\n", rs.getInt("vin"), rs.getString("category"));
+				count++;
+			}
+
+			rs.close();
+		} catch (Exception e)
+		{
+			System.out.println("cannot execute the query");
+		} finally
+		{
+			freeResultSetResources(rs);
+		}
+		
+		return output;
 	}
 
 }
