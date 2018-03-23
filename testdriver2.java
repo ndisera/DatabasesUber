@@ -38,6 +38,7 @@ public class testdriver2 {
 	 * Prints the user menu.
 	 */
 	public static void displayUserMenu() {
+		System.out.println("        Welcome to UUber System     ");
 		System.out.println("1. Make a reservation");
 		System.out.println("2. Record a ride");
 		System.out.println("3. Declare your favorite car");
@@ -57,6 +58,7 @@ public class testdriver2 {
 	 * Prints the driver menu.
 	 */
 	public static void displayDriverMenu() {
+		System.out.println("        Welcome, Driver     ");
 		System.out.println("1. Add new car");
 		System.out.println("2. Update car");
 		System.out.println("3. Exit");
@@ -67,6 +69,7 @@ public class testdriver2 {
 	 * Prints the admin menu.
 	 */
 	public static void displayAdminMenu() {
+		System.out.println("        Welcome, Admin    ");
 		System.out.println("1. Award Top Users");
 		System.out.println("2. Exit");
 		System.out.println("Please enter your choice:");
@@ -150,7 +153,7 @@ public class testdriver2 {
 		String name;
 		String address;
 		String phoneNumber;
-		
+
 		System.out.println("Please enter your desired username:");
 		while ((username = in.readLine()) == null || username.length() == 0)
 			;
@@ -158,9 +161,11 @@ public class testdriver2 {
 		while ((password = in.readLine()) == null || password.length() == 0)
 			;
 		System.out.println("Please enter your password again for confirmation:");
-		while ((password2 = in.readLine()) == null || password2.length() == 0)
-			;
-		
+		while ((password2 = in.readLine()) == null || password2.length() == 0 || password.equals(password2)) {
+			if (password.length() > 0) {
+				System.out.println("Error: passwords did not match");
+			}
+		}	
 		System.out.println("Please enter your name:");
 		while ((name = in.readLine()) == null || name.length() == 0)
 			;
@@ -170,21 +175,13 @@ public class testdriver2 {
 		System.out.println("Please enter your phone number (only digits):");
 		while ((phoneNumber = in.readLine()) == null || phoneNumber.length() == 0)
 			;
-		
-		if (!password.equals(password2)) {
-			System.out.println("Error: passwords did not match");
+		try {
+			Integer.parseInt(phoneNumber);
+		} catch (Exception e) {
+			System.out.println("Phone number can only consist of digits");
 			return;
 		}
-		if (phoneNumber.length() != 0) {
-			try {
-		        Integer.parseInt(phoneNumber);
-		    }
-		    catch( Exception e ) {
-		        System.out.println("Phone number can only consist of digits");
-		        return;
-		    }
-		}
-		
+
 		user = new User(username, password, con.stmt, name, address, Integer.parseInt(phoneNumber));
 		if (user.registerForUber()) {
 			System.out.println("User registration successful");
@@ -246,8 +243,11 @@ public class testdriver2 {
 		while ((password = in.readLine()) == null || password.length() == 0)
 			;
 		System.out.println("Please enter your password again for confirmation:");
-		while ((password2 = in.readLine()) == null || password2.length() == 0)
-			;
+		while ((password2 = in.readLine()) == null || password2.length() == 0 || password.equals(password2)) {
+			if (password.length() > 0) {
+				System.out.println("Error: passwords did not match");
+			}
+		}		
 		System.out.println("Please enter your name:");
 		while ((name = in.readLine()) == null || name.length() == 0)
 			;
@@ -257,28 +257,12 @@ public class testdriver2 {
 		System.out.println("Please enter your phone number (only digits):");
 		while ((phoneNumber = in.readLine()) == null || phoneNumber.length() == 0)
 			;
-
-		if (!password.equals(password2)) {
-			System.out.println("Error: passwords did not match");
+		try {
+			Integer.parseInt(phoneNumber);
+		} catch (Exception e) {
+			System.out.println("Phone number can only consist of digits");
 			return;
 		}
-		if (phoneNumber.length() != 0) {
-			try {
-		        Integer.parseInt(phoneNumber);
-		    }
-		    catch( Exception e ) {
-		        System.out.println("Phone number can only consist of digits");
-		        return;
-		    }
-		}
-		
-		try {
-	        Integer.parseInt(phoneNumber);
-	    }
-	    catch( Exception e ) {
-	        System.out.println("Phone number can only consist of digits");
-	        return;
-	    }
 
 		driver = new Driver(username, password, con.stmt, name, address, Integer.parseInt(phoneNumber));
 		if (driver.registerForUber()) {
@@ -480,22 +464,20 @@ public class testdriver2 {
 			case 5:
 				// rate feedback usefulness
 				int fid, rating;
-				try
-				{
+				try {
 					System.out.println("Please enter the feedback fid you want to rate:");
-					while ((input = in.readLine()) == null || choice.length() == 0);
+					while ((input = in.readLine()) == null || choice.length() == 0)
+						;
 					fid = Integer.parseInt(input);
 					System.out.println("Please enter the rating for the feedback between 0-2:");
-					while ((input = in.readLine()) == null || choice.length() == 0);
+					while ((input = in.readLine()) == null || choice.length() == 0)
+						;
 					rating = Integer.parseInt(input);
-					if (rating < 0 || rating > 2)
-					{
+					if (rating < 0 || rating > 2) {
 						System.out.println("Wrong input range");
 						break;
-					}						
-				}
-				catch(NumberFormatException e)
-				{
+					}
+				} catch (NumberFormatException e) {
 					System.out.println("Wrong number format");
 					break;
 				}
@@ -506,16 +488,17 @@ public class testdriver2 {
 				// edit trusted users
 				System.out.println("Please enter the login of the user you want to trust/distrust:");
 				String uuLogin;
-				while ((uuLogin = in.readLine()) == null || choice.length() == 0);
+				while ((uuLogin = in.readLine()) == null || choice.length() == 0)
+					;
 				System.out.println("Do you trust him ? (yes/no) ");
-				while ((input = in.readLine()) == null || choice.length() == 0);
+				while ((input = in.readLine()) == null || choice.length() == 0)
+					;
 				boolean isTrusted;
 				if (input.toLowerCase().equals("yes"))
 					isTrusted = true;
 				else if (input.toLowerCase().equals("no"))
 					isTrusted = false;
-				else 
-				{
+				else {
 					System.out.println("Wrong input");
 					break;
 				}
@@ -526,25 +509,29 @@ public class testdriver2 {
 				// browse cars
 				System.out.println("Please enter car's category or leave it blank");
 				String category;
-				while ((category = in.readLine()) == null);
-				
+				while ((category = in.readLine()) == null)
+					;
+
 				System.out.println("Please enter car's address or leave it blank");
 				String address;
-				while ((address = in.readLine()) == null);
-				
+				while ((address = in.readLine()) == null)
+					;
+
 				System.out.println("Please enter car's model or leave it blank");
 				String model;
-				while ((model = in.readLine()) == null);
-				
-				System.out.println("Do you want the results sorted by the feedback of only the users you trust? (yes/no) ");
-				while ((input = in.readLine()) == null || choice.length() == 0);
+				while ((model = in.readLine()) == null)
+					;
+
+				System.out.println(
+						"Do you want the results sorted by the feedback of only the users you trust? (yes/no) ");
+				while ((input = in.readLine()) == null || choice.length() == 0)
+					;
 				boolean sortByFeedbacks;
 				if (input.toLowerCase().equals("no"))
 					sortByFeedbacks = true;
 				else if (input.toLowerCase().equals("yes"))
 					sortByFeedbacks = false;
-				else 
-				{
+				else {
 					System.out.println("Wrong input");
 					break;
 				}
@@ -555,16 +542,15 @@ public class testdriver2 {
 				// get most useful feedback for a driver
 				System.out.println("Please enter the login of the driver you want feedback for:");
 				String udLogin;
-				while ((udLogin = in.readLine()) == null || choice.length() == 0);
+				while ((udLogin = in.readLine()) == null || choice.length() == 0)
+					;
 				System.out.println("Please enter the number of feedbacks you want:");
-				while ((input = in.readLine()) == null || choice.length() == 0);
+				while ((input = in.readLine()) == null || choice.length() == 0)
+					;
 				int numberOfFeedbacks;
-				try
-				{
+				try {
 					numberOfFeedbacks = Integer.parseInt(input);
-				}
-				catch(NumberFormatException e)
-				{
+				} catch (NumberFormatException e) {
 					System.out.println("Wrong number format");
 					break;
 				}
@@ -574,14 +560,12 @@ public class testdriver2 {
 			case 9:
 				// get suggested cars
 				System.out.println("Please enter the user vin of the car you want to get suggestions based on");
-				while ((input = in.readLine()) == null || choice.length() == 0);
+				while ((input = in.readLine()) == null || choice.length() == 0)
+					;
 				int vin;
-				try
-				{
+				try {
 					vin = Integer.parseInt(input);
-				}
-				catch(NumberFormatException e)
-				{
+				} catch (NumberFormatException e) {
 					System.out.println("Wrong number format");
 					break;
 				}
@@ -590,9 +574,12 @@ public class testdriver2 {
 				break;
 			case 10:
 				// get user degrees of separation
-				System.out.println("Please enter the user login of the user you want to know the separation degree of:");;
+				System.out
+						.println("Please enter the user login of the user you want to know the separation degree of:");
+				;
 				String uuLogin2;
-				while ((uuLogin2 = in.readLine()) == null || choice.length() == 0);
+				while ((uuLogin2 = in.readLine()) == null || choice.length() == 0)
+					;
 				String degree = user.getSeparationDegree(user.getLogin(), uuLogin2);
 				System.out.println(degree);
 				break;
@@ -632,10 +619,11 @@ public class testdriver2 {
 			switch (c) {
 			case 1:
 				// add new car
-				
+				changeCars(0);
 				break;
 			case 2:
 				// update car
+				changeCars(1);
 				break;
 			case 3:
 				// go back
@@ -645,6 +633,70 @@ public class testdriver2 {
 				System.out.println("Your input didn't match any of the choices");
 				break;
 			}
+		}
+	}
+
+	/**
+	 * Attempts to add or update a car.
+	 * 
+	 * @param method		0 for add, 1 for update
+	 * @throws IOException
+	 */
+	public static void changeCars(int method) throws IOException {
+		// vin, category, year, make, model
+		String vin;
+		String category;
+		String year;
+		String make;
+		String model;
+
+		System.out.println("Please enter your car's vin:");
+		while ((vin = in.readLine()) == null || vin.length() == 0)
+			;
+		try {
+			Integer.parseInt(vin);
+		} catch (Exception e) {
+			System.out.println("Your car's vin can only consist of digits");
+			return;
+		}
+		System.out.println("Please enter your car's category (economy, comfort, luxury):");
+		while ((category = in.readLine()) == null || category.length() == 0 
+				|| (!category.equals("economy") && !category.equals("comfort") && !category.equals("luxury"))) {
+			if (category.length() > 0) {
+				System.out.println("Category has to be economy, comfort, or luxury");
+			}
+		}
+		System.out.println("Please enter your car's year:");
+		while ((year = in.readLine()) == null || year.length() == 0)
+			;
+		try {
+			Integer.parseInt(year);
+		} catch (Exception e) {
+			System.out.println("Your car's year can only consist of digits");
+		}
+		System.out.println("Please enter your car's make:");
+		while ((make = in.readLine()) == null || make.length() == 0)
+			;
+		System.out.println("Please enter your car's model:");
+		while ((model = in.readLine()) == null || model.length() == 0)
+			;
+		
+		// now either add or update
+		switch (method) {
+		case 0: 
+			if (user.addCar(Integer.parseInt(vin), category, Integer.parseInt(year), make, model)) {
+				System.out.println("Car successfully added");
+			} else {
+				System.out.println("Car could not be added");
+			}
+			break;
+		case 1: 
+			if (user.updateCar(Integer.parseInt(vin), category, Integer.parseInt(year), make, model)) {
+				System.out.println("Car successfully updated");
+			} else {
+				System.out.println("Car could not be updated");
+			}
+			break;
 		}
 	}
 

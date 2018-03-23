@@ -53,12 +53,7 @@ public class Driver extends UberUser {
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
 		} finally {
-			try {
-				if (rs != null && !rs.isClosed())
-					rs.close();
-			} catch (Exception e) {
-				System.out.println("cannot close resultset");
-			}
+			freeResultSetResources(rs);
 		}
 		if (output.equals("")) {
 			return false;
