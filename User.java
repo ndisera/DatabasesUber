@@ -124,6 +124,26 @@ public class User extends UberUser {
 		// Here I insert each one of these rides
 		return false;
 	}
+	
+	/**
+	 * Attempts to add a car to favorites.
+	 * 
+	 * @param vin the vin of the car being favorited
+	 * @return true if car successfully favorited, false otherwise
+	 */
+	public boolean favoriteCar(int vin) {
+		String sql = String.format("insert into favorites (vin, login, fv_date) values(%d, '%s', DATE(NOW()));", vin, this.getLogin());
+		int rs;
+		try {
+			rs = this.getStmt().executeUpdate(sql);
+			if (rs > 0)
+				return true;
+		} catch (Exception e) {
+			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
+		}
+		return false;
+	}
 
 	/**
 	 * @param fid

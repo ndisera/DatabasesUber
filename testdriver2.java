@@ -596,7 +596,7 @@ public class testdriver2 {
 					String rideVin;
 					String rideFromHour;
 					String rideToHour;
-					System.out.println("Please enter the date of your ride");
+					System.out.println("Please enter the date (YYYY-MM-DD) of your ride");
 					while ((rideDate = in.readLine()) == null || rideDate.length() == 0)
 						;
 					while (true) {
@@ -615,13 +615,31 @@ public class testdriver2 {
 						System.out.println("Please enter the hour your ride started (0-23)");
 						while ((rideFromHour = in.readLine()) == null || rideFromHour.length() == 0)
 							;
-						break;
+						try {
+							int hour = Integer.parseInt(rideFromHour);
+							if (hour <= 23 && hour >= 0) {
+								break;
+							}
+						} catch (Exception e) {
+							System.out.println("Hour has to be a number.");
+							continue;
+						}
 					}
 					while (true) {
 						System.out.println("Please enter the hour your ride ended (0-23)");
 						while ((rideToHour = in.readLine()) == null || rideToHour.length() == 0)
 							;
-						break;
+						try {
+							int hour = Integer.parseInt(rideToHour);
+							if (hour < Integer.parseInt(rideFromHour)) {
+								System.out.println("This hour can't be less than the hour you started ");
+							} else if (hour <= 23 && hour >= 0) {
+								break;
+							}
+						} catch (Exception e) {
+							System.out.println("Hour has to be a number.");
+							continue;
+						}
 					}
 					
 					rides.add(new Ride(Integer.parseInt(rideCost), rideDate, user.getLogin(), 
@@ -672,9 +690,26 @@ public class testdriver2 {
 				break;
 			case 3:
 				// declare your favorite car
+				System.out.println("Please enter the vin of the car you want to favorite");
+				while (true) {
+					while((input = in.readLine()) == null || input.length() == 0);
+					try {
+						Integer.parseInt(input);
+						break;
+					} catch(Exception e) {
+						System.out.println("vin has to be a number");
+						continue;
+					}
+				}
+				if (user.favoriteCar(Integer.parseInt(input))) {
+					System.out.println("Car successfully added to favorites");
+				} else {
+					System.out.println("Favorite did not work");
+				}
 				break;
 			case 4:
 				// record feedback for a car
+				
 				break;
 			case 5:
 				// rate feedback usefulness
