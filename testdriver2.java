@@ -169,13 +169,15 @@ public class testdriver2 {
 		while ((address = in.readLine()) == null || address.length() == 0)
 			;
 		System.out.println("Please enter your phone number (only digits):");
-		while ((phoneNumber = in.readLine()) == null || phoneNumber.length() == 0)
-			;
-		try {
-			Integer.parseInt(phoneNumber);
-		} catch (Exception e) {
-			System.out.println("Phone number can only consist of digits");
-			return;
+		while (true) {
+			while ((phoneNumber = in.readLine()) == null || phoneNumber.length() == 0)
+				;
+			try {
+				Integer.parseInt(phoneNumber);
+				break;
+			} catch (Exception e) {
+				System.out.println("Phone number can only consist of digits");
+			}
 		}
 
 		user = new User(username, password, con.stmt, name, address, Integer.parseInt(phoneNumber));
@@ -205,7 +207,7 @@ public class testdriver2 {
 		while ((password = in.readLine()) == null || password.length() == 0)
 			;
 		user = new User(username, password, con.stmt);
-		
+
 		System.out.println("Please enter your availability.");
 		System.out.println("From hour (0-23)");
 		while (true) {
@@ -229,14 +231,14 @@ public class testdriver2 {
 				if (hour < Integer.parseInt(startHour)) {
 					System.out.println("This hour need can't be less than the other hour you input");
 					continue;
-				}					
+				}
 				if (hour >= 0 && hour <= 23)
 					break;
 			} catch (Exception e) {
 				System.out.println("Hour has to be a number");
 			}
 		}
-		
+
 		if (user.loginToUber(username, password)) {
 			// they have successfully logged in as a user, create a driver account for them
 			// (probably some driver method)
@@ -582,10 +584,91 @@ public class testdriver2 {
 						break;
 					}
 				}
-
 				break;
 			case 2:
 				// record a ride
+				stillAdding = true;
+				ArrayList<Ride> rides = new ArrayList<Ride>();
+				while (stillAdding) {
+					// date, cost, vin, from hour, to hour
+					String rideDate;
+					String rideCost;
+					String rideVin;
+					String rideFromHour;
+					String rideToHour;
+					System.out.println("Please enter the date of your ride");
+					while ((rideDate = in.readLine()) == null || rideDate.length() == 0)
+						;
+					while (true) {
+						System.out.println("Please enter the cost of your ride (In dollars, no $, i.e. 20)");
+						while ((rideCost = in.readLine()) == null || rideCost.length() == 0)
+							;
+						break;
+					}
+					while (true) {
+						System.out.println("Please enter the car vin of your ride");
+						while ((rideVin = in.readLine()) == null || rideVin.length() == 0)
+							;
+						break;
+					}
+					while (true) {
+						System.out.println("Please enter the hour your ride started (0-23)");
+						while ((rideFromHour = in.readLine()) == null || rideFromHour.length() == 0)
+							;
+						break;
+					}
+					while (true) {
+						System.out.println("Please enter the hour your ride ended (0-23)");
+						while ((rideToHour = in.readLine()) == null || rideToHour.length() == 0)
+							;
+						break;
+					}
+					
+					rides.add(new Ride(Integer.parseInt(rideCost), rideDate, user.getLogin(), 
+							Integer.parseInt(rideVin), Integer.parseInt(rideFromHour), Integer.parseInt(rideToHour)));
+					// remember that I give them the option to keep adding until satisfied
+					System.out.println("Are you done adding rides? (y/n)");
+					while ((input = in.readLine()) == null || (!input.equals("y") && !input.equals("n")))
+						;
+					if (input.equals("y")) {
+						stillAdding = false;
+					}
+				}
+				// if they are, I display all of their reservations back to them and give them
+				// the choice to save or cancel
+				System.out.println("Here are all of the rides you've created:");
+				for (Ride r : rides) {
+					carDetails = String.format("cost: %d, date: %s, vin: %d, from hour: %d, to hour: %d", 
+							r.cost, r.date, r.vin, r.from_hour, r.to_hour, r.cost);
+					System.out.println(carDetails);
+				}
+				System.out.println("1. Submit all of your rides");
+				System.out.println("2. Cancel all of your rides");
+				System.out.println("Please enter your choice:");
+				number = true;
+				while (number) {
+					while ((input = in.readLine()) == null || input.length() == 0)
+						;
+					try {
+						c = Integer.parseInt(input);
+					} catch (Exception e) {
+						continue;
+					}
+
+					switch (c) {
+					case 1:
+						user.submitRides(rides);
+						number = true;
+						break;
+					case 2:
+						System.out.println("Rides cancelled");
+						number = true;
+						break;
+					default:
+						System.out.println("Your input didn't match any of the choices.");
+						break;
+					}
+				}
 				break;
 			case 3:
 				// declare your favorite car
@@ -845,13 +928,16 @@ public class testdriver2 {
 		String model;
 
 		System.out.println("Please enter your car's vin:");
-		while ((vin = in.readLine()) == null || vin.length() == 0)
-			;
-		try {
-			Integer.parseInt(vin);
-		} catch (Exception e) {
-			System.out.println("Your car's vin can only consist of digits");
-			return;
+		while (true) {
+			while ((vin = in.readLine()) == null || vin.length() == 0)
+				;
+			try {
+				Integer.parseInt(vin);
+				break;
+			} catch (Exception e) {
+				System.out.println("Your car's vin can only consist of digits");
+				return;
+			}
 		}
 		System.out.println("Please enter your car's category (economy, comfort, luxury):");
 		while ((category = in.readLine()) == null || category.length() == 0
@@ -861,12 +947,15 @@ public class testdriver2 {
 			}
 		}
 		System.out.println("Please enter your car's year:");
-		while ((year = in.readLine()) == null || year.length() == 0)
-			;
-		try {
-			Integer.parseInt(year);
-		} catch (Exception e) {
-			System.out.println("Your car's year can only consist of digits");
+		while (true) {
+			while ((year = in.readLine()) == null || year.length() == 0)
+				;
+			try {
+				Integer.parseInt(year);
+				break;
+			} catch (Exception e) {
+				System.out.println("Your car's year can only consist of digits");
+			}
 		}
 		System.out.println("Please enter your car's make:");
 		while ((make = in.readLine()) == null || make.length() == 0)
