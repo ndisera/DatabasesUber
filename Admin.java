@@ -44,6 +44,7 @@ public class Admin {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		} finally {
 			try {
 				if (rs != null && !rs.isClosed())
@@ -79,6 +80,7 @@ public class Admin {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		} finally {
 			try {
 				if (rs != null && !rs.isClosed())
@@ -110,6 +112,7 @@ public class Admin {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		} finally {
 			try {
 				if (rs != null && !rs.isClosed())

@@ -60,6 +60,7 @@ public class User extends UberUser {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rs);
 		}
@@ -133,6 +134,21 @@ public class User extends UberUser {
 	 */
 	public boolean favoriteCar(int vin) {
 		String sql = String.format("insert into favorites (vin, login, fv_date) values(%d, '%s', DATE(NOW()));", vin, this.getLogin());
+		int rs;
+		try {
+			rs = this.getStmt().executeUpdate(sql);
+			if (rs > 0)
+				return true;
+		} catch (Exception e) {
+			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
+		}
+		return false;
+	}
+	
+	public boolean leaveFeedback(int vin, int score, String comment) {
+		String sql = String.format("insert into feedback (vin, login, score, text, fb_date) values(%d, '%s', %d, '%s', DATE(NOW()));",
+				vin, this.getLogin(), score, comment);
 		int rs;
 		try {
 			rs = this.getStmt().executeUpdate(sql);
@@ -296,6 +312,7 @@ public class User extends UberUser {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rs);
 		}
@@ -332,6 +349,7 @@ public class User extends UberUser {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rs);
 		}
@@ -362,6 +380,7 @@ public class User extends UberUser {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rs);
 		}
@@ -395,6 +414,7 @@ public class User extends UberUser {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rs);
 		}
@@ -415,6 +435,7 @@ public class User extends UberUser {
 			rsSecondDegree.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rsSecondDegree);
 		}
@@ -518,6 +539,7 @@ public class User extends UberUser {
 			} catch (Exception e)
 			{
 				System.out.println("cannot execute the query");
+				e.printStackTrace(System.out);
 			} finally
 			{
 				freeResultSetResources(rs);
@@ -555,6 +577,7 @@ public class User extends UberUser {
 			} catch (Exception e)
 			{
 				System.out.println("cannot execute the query");
+				e.printStackTrace(System.out);
 			} finally
 			{
 				freeResultSetResources(rs);

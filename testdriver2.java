@@ -217,6 +217,8 @@ public class testdriver2 {
 				int hour = Integer.parseInt(startHour);
 				if (hour >= 0 && hour <= 23) {
 					break;
+				} else {
+					System.out.println("Hour has to be between 0 and 23");
 				}
 			} catch (Exception e) {
 				System.out.println("Hour has to be a number");
@@ -232,8 +234,11 @@ public class testdriver2 {
 					System.out.println("This hour need can't be less than the other hour you input");
 					continue;
 				}
-				if (hour >= 0 && hour <= 23)
+				if (hour >= 0 && hour <= 23) {
 					break;
+				} else {
+					System.out.println("Hour has to be between 0 and 23");
+				}
 			} catch (Exception e) {
 				System.out.println("Hour has to be a number");
 			}
@@ -301,6 +306,8 @@ public class testdriver2 {
 				int hour = Integer.parseInt(startHour);
 				if (hour >= 0 && hour <= 23) {
 					break;
+				} else {
+					System.out.println("Hour has to be between 0 and 23");
 				}
 			} catch (Exception e) {
 				System.out.println("Hour has to be a number");
@@ -312,8 +319,11 @@ public class testdriver2 {
 				;
 			try {
 				int hour = Integer.parseInt(endHour);
-				if (hour >= 0 && hour <= 23)
+				if (hour >= 0 && hour <= 23) {
 					break;
+				} else {
+					System.out.println("Hour has to be between 0 and 23");
+				}
 			} catch (Exception e) {
 				System.out.println("Hour has to be a number");
 			}
@@ -619,6 +629,8 @@ public class testdriver2 {
 							int hour = Integer.parseInt(rideFromHour);
 							if (hour <= 23 && hour >= 0) {
 								break;
+							} else {
+								System.out.println("Hour has to be between 0 and 23");
 							}
 						} catch (Exception e) {
 							System.out.println("Hour has to be a number.");
@@ -635,15 +647,17 @@ public class testdriver2 {
 								System.out.println("This hour can't be less than the hour you started ");
 							} else if (hour <= 23 && hour >= 0) {
 								break;
+							} else {
+								System.out.println("Hour has to be between 0 and 23");
 							}
 						} catch (Exception e) {
 							System.out.println("Hour has to be a number.");
 							continue;
 						}
 					}
-					
-					rides.add(new Ride(Integer.parseInt(rideCost), rideDate, user.getLogin(), 
-							Integer.parseInt(rideVin), Integer.parseInt(rideFromHour), Integer.parseInt(rideToHour)));
+
+					rides.add(new Ride(Integer.parseInt(rideCost), rideDate, user.getLogin(), Integer.parseInt(rideVin),
+							Integer.parseInt(rideFromHour), Integer.parseInt(rideToHour)));
 					// remember that I give them the option to keep adding until satisfied
 					System.out.println("Are you done adding rides? (y/n)");
 					while ((input = in.readLine()) == null || (!input.equals("y") && !input.equals("n")))
@@ -656,8 +670,8 @@ public class testdriver2 {
 				// the choice to save or cancel
 				System.out.println("Here are all of the rides you've created:");
 				for (Ride r : rides) {
-					carDetails = String.format("cost: %d, date: %s, vin: %d, from hour: %d, to hour: %d", 
-							r.cost, r.date, r.vin, r.from_hour, r.to_hour, r.cost);
+					carDetails = String.format("cost: %d, date: %s, vin: %d, from hour: %d, to hour: %d", r.cost,
+							r.date, r.vin, r.from_hour, r.to_hour, r.cost);
 					System.out.println(carDetails);
 				}
 				System.out.println("1. Submit all of your rides");
@@ -692,11 +706,12 @@ public class testdriver2 {
 				// declare your favorite car
 				System.out.println("Please enter the vin of the car you want to favorite");
 				while (true) {
-					while((input = in.readLine()) == null || input.length() == 0);
+					while ((input = in.readLine()) == null || input.length() == 0)
+						;
 					try {
 						Integer.parseInt(input);
 						break;
-					} catch(Exception e) {
+					} catch (Exception e) {
 						System.out.println("vin has to be a number");
 						continue;
 					}
@@ -709,6 +724,46 @@ public class testdriver2 {
 				break;
 			case 4:
 				// record feedback for a car
+				// includes vin, login, score, text, date
+				String feedbackVin;
+				String feedbackScore;
+				String feedbackComment;
+				System.out.println("Please enter the vin of the car you want to leave feedback for");
+				while (true) {
+					while ((feedbackVin = in.readLine()) == null || feedbackVin.length() == 0)
+						;
+					try {
+						Integer.parseInt(feedbackVin);
+						break;
+					} catch (Exception e) {
+						System.out.println("Score has to be a number");
+					}
+				}
+				System.out.println("Please enter a score 0-10 (0 = terrible, 10 = excellent)");
+				while (true) {
+					while ((feedbackScore = in.readLine()) == null || feedbackScore.length() == 0)
+						;
+					try {
+						int score = Integer.parseInt(feedbackScore);
+						if (score < 0 || score > 10) {
+							System.out.println("Score must be between 0 and 10");
+							continue;
+						}
+						break;
+					} catch (Exception e) {
+						System.out.println("Score has to be a number");
+					}
+				}
+				System.out.println("Leave a comment if you'd like");
+				while ((feedbackComment = in.readLine()) == null || feedbackComment.length() == 0)
+					;
+				
+				if (user.leaveFeedback(Integer.parseInt(feedbackVin), Integer.parseInt(feedbackScore),
+						feedbackComment)) {
+					System.out.println("Feedback saved successfully");
+				} else {
+					System.out.println("Feedback could not be saved");
+				}
 				
 				break;
 			case 5:

@@ -52,6 +52,7 @@ public class Driver extends UberUser {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rs);
 		}
@@ -113,6 +114,7 @@ public class Driver extends UberUser {
 			rs = this.getStmt().executeUpdate(sql);
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		}
 		if (rs == 0) {
 			return false;
@@ -129,6 +131,7 @@ public class Driver extends UberUser {
 			resultSet.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 			return false;
 		} finally {
 			freeResultSetResources(resultSet);
@@ -142,6 +145,7 @@ public class Driver extends UberUser {
 				rs = this.getStmt().executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
 			} catch (Exception e) {
 				System.out.println("cannot execute the query");
+				e.printStackTrace(System.out);
 			}
 			if (rs == 0) {
 				return false;
@@ -165,6 +169,7 @@ public class Driver extends UberUser {
 			rs = this.getStmt().executeUpdate(sql);
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		}
 		if (rs == 0) {
 			return false;
@@ -198,6 +203,7 @@ public class Driver extends UberUser {
 			rs = this.getStmt().executeUpdate(sql);
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		}
 		if (rs == 0) {
 			return false;
@@ -214,6 +220,7 @@ public class Driver extends UberUser {
 			resultSet.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 			return false;
 		} finally {
 			freeResultSetResources(resultSet);
@@ -227,6 +234,7 @@ public class Driver extends UberUser {
 				rs = this.getStmt().executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
 			} catch (Exception e) {
 				System.out.println("cannot execute the query");
+				e.printStackTrace(System.out);
 			}
 			if (rs == 0) {
 				return false;
@@ -250,6 +258,7 @@ public class Driver extends UberUser {
 			rs = this.getStmt().executeUpdate(sql);
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		}
 		if (rs == 0) {
 			return false;
@@ -279,6 +288,7 @@ public class Driver extends UberUser {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rs);
 		}
@@ -289,6 +299,7 @@ public class Driver extends UberUser {
 				rs2 = this.getStmt().executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
 			} catch (Exception e) {
 				System.out.println("cannot execute the query");
+				e.printStackTrace(System.out);
 			}
 			
 			// if rs2 == 0 then something is wrong with the database and it needs to be fixed
@@ -310,6 +321,7 @@ public class Driver extends UberUser {
 			rs2 = this.getStmt().executeUpdate(sql);
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
 		}
 	}
 }
