@@ -358,8 +358,6 @@ public class User extends UberUser {
 	 *         between the two
 	 */
 	public String getSeparationDegree(String uuLogin1, String uuLogin2) {
-		// TODO check if they are 1 degree away from same user (2
-		// degree)
 		String sql = String.format(
 				"select f.vin from favorites f where f.login = '%s' and exists "
 						+ "(select f1.vin from favorites f1 where f1.login = '%s' and f.vin = f1.vin)",
@@ -410,7 +408,6 @@ public class User extends UberUser {
 	public ArrayList<String> getCategories()
 	{
 		ArrayList<String> categories = new ArrayList<>();
-		String output="";
 		String sql = "select distinct category from uc";
 		ResultSet rs = null;
 		// System.out.println("executing " + sql);
