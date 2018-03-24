@@ -2,6 +2,8 @@ package cs5530;
 
 import java.lang.*;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
 import java.io.*;
 
 public class testdriver2 {
@@ -165,7 +167,7 @@ public class testdriver2 {
 			if (password.length() > 0) {
 				System.out.println("Error: passwords did not match");
 			}
-		}	
+		}
 		System.out.println("Please enter your name:");
 		while ((name = in.readLine()) == null || name.length() == 0)
 			;
@@ -247,7 +249,7 @@ public class testdriver2 {
 			if (password.length() > 0) {
 				System.out.println("Error: passwords did not match");
 			}
-		}		
+		}
 		System.out.println("Please enter your name:");
 		while ((name = in.readLine()) == null || name.length() == 0)
 			;
@@ -451,6 +453,84 @@ public class testdriver2 {
 			switch (c) {
 			case 1:
 				// make a reservation
+				boolean stillAdding = true;
+				ArrayList<Reservation> reservations = new ArrayList<Reservation>();
+				while (stillAdding) {
+					System.out.println("Please enter a time (00:00 - 23:59) for your reservation");
+					while ((input = in.readLine()) == null || input.length() != 5 || !Pattern.matches("^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$", input))
+						;
+					Car[] cars = user.getAvailableCars(Integer.parseInt(input.substring(0, 2)));
+					String carDetails;
+					// get all available cars for this time
+					System.out.println("These are the available cars");
+					for (int i = 0; i < cars.length; i++) {
+						carDetails = String.format("%d. vin: %d, category: %s, cost: %d", i + 1, cars[i].vin,
+								cars[i].category);
+						System.out.println(carDetails);
+					}
+					System.out.println("Please enter your choice:");
+					// tell the user to select one of these cars (enter their vin, or list their
+					// vins alongside a number and enter that)
+					while (true) {
+						while ((input = in.readLine()) == null || input.length() == 0)
+							;
+						try {
+							c = Integer.parseInt(input);
+							if (c < cars.length) {
+								break;
+							} else {
+								System.out.println("Your input didn't match any of the choices");
+							}
+						} catch (Exception e) {
+							continue;
+						}
+					}
+					reservations.add(user.makeReservation(input, cars[c - 1].vin));
+					// remember that I give them the option to keep adding until satisfied
+					System.out.println("Are you done adding reservations? (y/n)");
+					while ((input = in.readLine()) == null || (!input.equals("y") && !input.equals("n")))
+						;
+					if (input.equals("y")) {
+						stillAdding = false;
+					}
+				}
+				// if they are, I display all of their reservations back to them and give them
+				// the choice to save or cancel
+				System.out.println("Here are all of the reservations you've created:");
+				String carDetails;
+				for (Reservation r : reservations) {
+					carDetails = String.format("time: %s, vin: %d, cost: %d", r.date,
+							r.vin, r.cost);
+					System.out.println(carDetails);
+				}
+				System.out.println("1. Submit all of your reservations");
+				System.out.println("2. Cancel all of your reservations");
+				System.out.println("Please enter your choice:");
+				boolean number = true;
+				while (number) {
+					while ((input = in.readLine()) == null || input.length() == 0)
+						;
+					try {
+						c = Integer.parseInt(input);
+					} catch (Exception e) {
+						continue;
+					}
+
+					switch (c) {
+					case 1:
+						user.submitReservations(reservations);
+						number = true;
+						break;
+					case 2:
+						System.out.println("Reservations cancelled");
+						number = true;
+						break;
+					default:
+						System.out.println("Your input didn't match any of the choices.");
+						break;
+					}
+				}
+
 				break;
 			case 2:
 				// record a ride
@@ -466,11 +546,13 @@ public class testdriver2 {
 				int fid, rating;
 				try {
 					System.out.println("Please enter the feedback fid you want to rate:");
-					while ((input = in.readLine()) == null || input.length() == 0);
+					while ((input = in.readLine()) == null || input.length() == 0)
+						;
 					fid = Integer.parseInt(input);
 					input = null;
 					System.out.println("Please enter the rating for the feedback between 0-2:");
-					while ((input = in.readLine()) == null || input.length() == 0);
+					while ((input = in.readLine()) == null || input.length() == 0)
+						;
 					rating = Integer.parseInt(input);
 					if (rating < 0 || rating > 2) {
 						System.out.println("Wrong input range");
@@ -487,9 +569,11 @@ public class testdriver2 {
 				// edit trusted users
 				System.out.println("Please enter the login of the user you want to trust/distrust:");
 				String uuLogin;
-				while ((uuLogin = in.readLine()) == null || uuLogin.length() == 0);
+				while ((uuLogin = in.readLine()) == null || uuLogin.length() == 0)
+					;
 				System.out.println("Do you trust him ? (yes/no) ");
-				while ((input = in.readLine()) == null || input.length() == 0);
+				while ((input = in.readLine()) == null || input.length() == 0)
+					;
 				boolean isTrusted;
 				if (input.toLowerCase().equals("yes"))
 					isTrusted = true;
@@ -509,35 +593,39 @@ public class testdriver2 {
 				String model_category = "";
 				System.out.println("Please enter car's category or leave it blank");
 				String category;
-				while ((category = in.readLine()) == null);
- 
+				while ((category = in.readLine()) == null)
+					;
+
 				System.out.println("Please enter car's address or leave it blank");
 				String address;
-				while ((address = in.readLine()) == null);
-				
-				if (!category.equals("") && !address.equals("")) 
-				{
+				while ((address = in.readLine()) == null)
+					;
+
+				if (!category.equals("") && !address.equals("")) {
 					System.out.println("Do you want to browse by category and address using AND or OR? (and/or)");
-					while ((category_address = in.readLine().toLowerCase()) == null);
+					while ((category_address = in.readLine().toLowerCase()) == null)
+						;
 				}
-				
+
 				System.out.println("Please enter car's model or leave it blank");
 				String model;
-				while ((model = in.readLine()) == null);
-				
-				if (!address.equals("") && !model.equals("")) 
-				{
+				while ((model = in.readLine()) == null)
+					;
+
+				if (!address.equals("") && !model.equals("")) {
 					System.out.println("Do you want to browse by model and address using AND or OR? (and/or)");
-					while ((model_address = in.readLine().toLowerCase()) == null);
-				}
-				else if (!category.equals("") && address.equals("") && !model.equals(""))
-				{
+					while ((model_address = in.readLine().toLowerCase()) == null)
+						;
+				} else if (!category.equals("") && address.equals("") && !model.equals("")) {
 					System.out.println("Do you want to browse by model and category using AND or OR? (and/or)");
-					while ((model_category = in.readLine().toLowerCase()) == null);
+					while ((model_category = in.readLine().toLowerCase()) == null)
+						;
 				}
-				
-				System.out.println("Do you want the results sorted by the feedback of only the users you trust? (yes/no) ");
-				while ((input = in.readLine()) == null || input.length() == 0);
+
+				System.out.println(
+						"Do you want the results sorted by the feedback of only the users you trust? (yes/no) ");
+				while ((input = in.readLine()) == null || input.length() == 0)
+					;
 				boolean sortByFeedbacks;
 				if (input.toLowerCase().equals("no"))
 					sortByFeedbacks = true;
@@ -547,16 +635,19 @@ public class testdriver2 {
 					System.out.println("Wrong input");
 					break;
 				}
-				String cars = user.browseCars(category, address, model, model_address, category_address, model_category, sortByFeedbacks);
+				String cars = user.browseCars(category, address, model, model_address, category_address, model_category,
+						sortByFeedbacks);
 				System.out.println(cars);
 				break;
 			case 8:
 				// get most useful feedback for a driver
 				System.out.println("Please enter the login of the driver you want feedback for:");
 				String udLogin;
-				while ((udLogin = in.readLine()) == null || udLogin.length() == 0);
+				while ((udLogin = in.readLine()) == null || udLogin.length() == 0)
+					;
 				System.out.println("Please enter the number of feedbacks you want:");
-				while ((input = in.readLine()) == null || input.length() == 0);
+				while ((input = in.readLine()) == null || input.length() == 0)
+					;
 				int numberOfFeedbacks;
 				try {
 					numberOfFeedbacks = Integer.parseInt(input);
@@ -570,7 +661,8 @@ public class testdriver2 {
 			case 9:
 				// get suggested cars
 				System.out.println("Please enter the user vin of the car you want to get suggestions based on");
-				while ((input = in.readLine()) == null || input.length() == 0);
+				while ((input = in.readLine()) == null || input.length() == 0)
+					;
 				int vin;
 				try {
 					vin = Integer.parseInt(input);
@@ -587,30 +679,35 @@ public class testdriver2 {
 						.println("Please enter the user login of the user you want to know the separation degree of:");
 				;
 				String uuLogin2;
-				while ((uuLogin2 = in.readLine()) == null || uuLogin2.length() == 0);
+				while ((uuLogin2 = in.readLine()) == null || uuLogin2.length() == 0)
+					;
 				String degree = user.getSeparationDegree(user.getLogin(), uuLogin2);
 				System.out.println(degree);
 				break;
 			case 11:
 				// get statistics
 				displayStats();
-				while ((input = in.readLine()) == null || input.length() == 0);
+				while ((input = in.readLine()) == null || input.length() == 0)
+					;
 				switch (Integer.parseInt(input)) {
 				case 1:
 					System.out.println("Please enter the number of cars you want to display for each category:");
-					while ((input = in.readLine()) == null || input.length() == 0);
+					while ((input = in.readLine()) == null || input.length() == 0)
+						;
 					String popularCars = user.getMostPopularUCs(Integer.parseInt(input));
 					System.out.println(popularCars);
 					break;
 				case 2:
 					System.out.println("Please enter the number of cars you want to display for each category:");
-					while ((input = in.readLine()) == null || input.length() == 0);
+					while ((input = in.readLine()) == null || input.length() == 0)
+						;
 					String expensiveCars = user.getMostExpensiveUCs(Integer.parseInt(input));
 					System.out.println(expensiveCars);
 					break;
 				case 3:
 					System.out.println("Please enter the number of drivers you want to display for each category:");
-					while ((input = in.readLine()) == null || input.length() == 0);
+					while ((input = in.readLine()) == null || input.length() == 0)
+						;
 					String bestDrivers = user.getBestUDs(Integer.parseInt(input));
 					System.out.println(bestDrivers);
 					break;
@@ -630,7 +727,7 @@ public class testdriver2 {
 		}
 	}
 
-	/**	 
+	/**
 	 * Stats options
 	 * 
 	 * @throws IOException
@@ -640,7 +737,7 @@ public class testdriver2 {
 		System.out.println("2. The list of m most expensive UCs for each category");
 		System.out.println("3. the list of m highly rated UDs for each category");
 	}
-	
+
 	/**
 	 * Driver options
 	 * 
@@ -683,7 +780,8 @@ public class testdriver2 {
 	/**
 	 * Attempts to add or update a car.
 	 * 
-	 * @param method		0 for add, 1 for update
+	 * @param method
+	 *            0 for add, 1 for update
 	 * @throws IOException
 	 */
 	public static void changeCars(int method) throws IOException {
@@ -704,7 +802,7 @@ public class testdriver2 {
 			return;
 		}
 		System.out.println("Please enter your car's category (economy, comfort, luxury):");
-		while ((category = in.readLine()) == null || category.length() == 0 
+		while ((category = in.readLine()) == null || category.length() == 0
 				|| (!category.equals("economy") && !category.equals("comfort") && !category.equals("luxury"))) {
 			if (category.length() > 0) {
 				System.out.println("Category has to be economy, comfort, or luxury");
@@ -724,18 +822,18 @@ public class testdriver2 {
 		System.out.println("Please enter your car's model:");
 		while ((model = in.readLine()) == null || model.length() == 0)
 			;
-		
+
 		// now either add or update
 		switch (method) {
-		case 0: 
-			if (user.addCar(Integer.parseInt(vin), category, Integer.parseInt(year), make, model)) {
+		case 0:
+			if (driver.addCar(Integer.parseInt(vin), category, Integer.parseInt(year), make, model)) {
 				System.out.println("Car successfully added");
 			} else {
 				System.out.println("Car could not be added");
 			}
 			break;
-		case 1: 
-			if (user.updateCar(Integer.parseInt(vin), category, Integer.parseInt(year), make, model)) {
+		case 1:
+			if (driver.updateCar(Integer.parseInt(vin), category, Integer.parseInt(year), make, model)) {
 				System.out.println("Car successfully updated");
 			} else {
 				System.out.println("Car could not be updated");

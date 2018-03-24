@@ -94,176 +94,35 @@ public class User extends UberUser {
 		}
 		return false;
 	}
-
-	/**
-	 * Creates and adds a car of the user.
-	 * 
-	 * @param vin
-	 *            car vin
-	 * @param category
-	 *            car category (economy, comfort, luxury)
-	 * @param year
-	 *            car year
-	 * @param make
-	 *            car make
-	 * @param model
-	 *            car model
-	 * @return true if car successfully added, false otherwise
-	 */
-	public boolean addCar(int vin, String category, int year, String make, String model) {
-		// I will insert into uc the vin, category, login, and year
-		String sql = String.format("insert into uc (vin, category, year, login) values(%d, '%s', %d, '%s');", vin,
-				category, year, this.getLogin());
-		int rs = 0;
-		int tid = 0;
-		ResultSet resultSet = null;
-		try {
-			rs = this.getStmt().executeUpdate(sql);
-		} catch (Exception e) {
-			System.out.println("cannot execute the query");
-		}
-		if (rs == 0) {
-			return false;
-		}
-
-		// I will lookup the ctypes table to see if make and model match
-		sql = String.format("select * from c_types where make = '%s' and model = '%s';", make, model);
-		try {
-			resultSet = this.getStmt().executeQuery(sql);
-			while (resultSet.next()) {
-				tid = resultSet.getInt("tid");
-			}
-
-			resultSet.close();
-		} catch (Exception e) {
-			System.out.println("cannot execute the query");
-			return false;
-		} finally {
-			freeResultSetResources(resultSet);
-		}
-
-		if (tid == 0) {
-			// there is no c_type with the given make and model, I need to insert one
-			sql = String.format("insert into c_types (make, model) values('%s', '%s');", make, model);
-			rs = 0;
-			try {
-				rs = this.getStmt().executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
-			} catch (Exception e) {
-				System.out.println("cannot execute the query");
-			}
-			if (rs == 0) {
-				return false;
-			}
-			// otherwise I think rs is the tid that I need
-			try {
-				ResultSet generatedKeys = this.getStmt().getGeneratedKeys();
-				if (generatedKeys.next()) {
-					tid = generatedKeys.getInt(1);
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		// insert new record into is_c_types
-		sql = String.format("insert into is_c_types (vin, tid) values (%d, %d);", vin, tid);
-		rs = 0;
-		try {
-			rs = this.getStmt().executeUpdate(sql);
-		} catch (Exception e) {
-			System.out.println("cannot execute the query");
-		}
-		if (rs == 0) {
-			return false;
-		}
-
-		return true;
+	
+	public Car[] getAvailableCars(int time) {
+		// get all cars where the driver is available and not already reserved
+		
+		// input might be messed up here
+		return new Car[] {};
 	}
-
-	/**
-	 * Updates a car of the user.
-	 * 
-	 * @param vin
-	 *            car vin
-	 * @param category
-	 *            car category (economy, comfort, luxury)
-	 * @param year
-	 *            car year
-	 * @param make
-	 *            car make
-	 * @param model
-	 *            car model
-	 * @return true if car successfully updated, false otherwise
-	 */
-	public boolean updateCar(int vin, String category, int year, String make, String model) {
-		// update uc
-		String sql = String.format("update uc set category = '%s', year = %d where vin = %d;", category, year, vin);
-		int rs = 0;
-		int tid = 0;
-		ResultSet resultSet = null;
-		try {
-			rs = this.getStmt().executeUpdate(sql);
-		} catch (Exception e) {
-			System.out.println("cannot execute the query");
-		}
-		if (rs == 0) {
-			return false;
-		}
-
-		// I will lookup the ctypes table to see if make and model match
-		sql = String.format("select * from c_types where make = '%s' and model = '%s';", make, model);
-		try {
-			resultSet = this.getStmt().executeQuery(sql);
-			while (resultSet.next()) {
-				tid = resultSet.getInt("tid");
-			}
-
-			resultSet.close();
-		} catch (Exception e) {
-			System.out.println("cannot execute the query");
-			return false;
-		} finally {
-			freeResultSetResources(resultSet);
-		}
-
-		if (tid == 0) {
-			// there is no c_type with the given make and model, I need to insert one
-			sql = String.format("insert into c_types (make, model) values('%s', '%s');", make, model);
-			rs = 0;
-			try {
-				rs = this.getStmt().executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
-			} catch (Exception e) {
-				System.out.println("cannot execute the query");
-			}
-			if (rs == 0) {
-				return false;
-			}
-			
-			try {
-				ResultSet generatedKeys = this.getStmt().getGeneratedKeys();
-				if (generatedKeys.next()) {
-					tid = generatedKeys.getInt(1);
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		// now I update the tid for the vin
-		sql = String.format("update is_c_types set tid = %d where vin = %d;", tid, vin);
-		rs = 0;
-		try {
-			rs = this.getStmt().executeUpdate(sql);
-		} catch (Exception e) {
-			System.out.println("cannot execute the query");
-		}
-		if (rs == 0) {
-			return false;
-		}
-
-		return true;
+	
+	public Reservation makeReservation(String time, int vin) {
+		// specify a time period (00:00 - 23:59)
+		int pid = 0;
+		int cost = 0;
+		// perform check and delete all reservations where the datetime has passed
+		// return all cars where the driver is available during that period and doesn't have a reservation for that time period
+		return new Reservation(this.getLogin(), vin, pid, cost, time);
+	}
+	
+	public boolean submitReservations(ArrayList<Reservation> reservations) {
+		// Here I insert each one of these reservations
+		return false;
+	}
+	
+	public Ride recordRide(int cost, String date, int vin, int from_hour, int to_hour) {
+		return new Ride(cost, date, this.getLogin(), vin, from_hour, to_hour);
+	}
+	
+	public boolean submitRides(ArrayList<Ride> rides) {
+		// Here I insert each one of these rides
+		return false;
 	}
 
 	/**
@@ -686,6 +545,6 @@ public class User extends UberUser {
 		}		
 		
 		return output;
-	}
+	}	
 
 }
