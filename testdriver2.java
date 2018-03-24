@@ -152,7 +152,6 @@ public class testdriver2 {
 	public static void registerNewUser() throws IOException {
 		String username;
 		String password;
-		String password2;
 		String name;
 		String address;
 		String phoneNumber;
@@ -163,12 +162,6 @@ public class testdriver2 {
 		System.out.println("Please enter your desired password:");
 		while ((password = in.readLine()) == null || password.length() == 0)
 			;
-		System.out.println("Please enter your password again for confirmation:");
-		while ((password2 = in.readLine()) == null || password2.length() == 0 || password.equals(password2)) {
-			if (password.length() > 0) {
-				System.out.println("Error: passwords did not match");
-			}
-		}
 		System.out.println("Please enter your name:");
 		while ((name = in.readLine()) == null || name.length() == 0)
 			;
@@ -203,6 +196,8 @@ public class testdriver2 {
 		System.out.println("Register with your user credentials");
 		String username;
 		String password;
+		String startHour;
+		String endHour;
 		System.out.println("Please enter your username:");
 		while ((username = in.readLine()) == null || username.length() == 0)
 			;
@@ -210,13 +205,45 @@ public class testdriver2 {
 		while ((password = in.readLine()) == null || password.length() == 0)
 			;
 		user = new User(username, password, con.stmt);
+		
+		System.out.println("Please enter your availability.");
+		System.out.println("From hour (0-23)");
+		while (true) {
+			while ((startHour = in.readLine()) == null || startHour.length() == 0)
+				;
+			try {
+				int hour = Integer.parseInt(startHour);
+				if (hour >= 0 && hour <= 23) {
+					break;
+				}
+			} catch (Exception e) {
+				System.out.println("Hour has to be a number");
+			}
+		}
+		System.out.println("To hour (0-23)");
+		while (true) {
+			while ((endHour = in.readLine()) == null || endHour.length() == 0)
+				;
+			try {
+				int hour = Integer.parseInt(endHour);
+				if (hour < Integer.parseInt(startHour)) {
+					System.out.println("This hour need can't be less than the other hour you input");
+					continue;
+				}					
+				if (hour >= 0 && hour <= 23)
+					break;
+			} catch (Exception e) {
+				System.out.println("Hour has to be a number");
+			}
+		}
+		
 		if (user.loginToUber(username, password)) {
 			// they have successfully logged in as a user, create a driver account for them
 			// (probably some driver method)
 			driver = new Driver(username, password, con.stmt, user.getName(), user.getAddress(), user.getPhoneNumber());
 			if (driver.registerForUber()) {
+				driver.insertAvailability(Integer.parseInt(startHour), Integer.parseInt(endHour));
 				System.out.println("Driver registration successful");
-
 				// at this point I know I can login as both
 				handleLoginMenu();
 			} else {
@@ -235,22 +262,17 @@ public class testdriver2 {
 	public static void registerNewDriver() throws IOException {
 		String username;
 		String password;
-		String password2;
 		String name;
 		String address;
 		String phoneNumber;
+		String startHour;
+		String endHour;
 		System.out.println("Please enter your desired username:");
 		while ((username = in.readLine()) == null || username.length() == 0)
 			;
 		System.out.println("Please enter your desired password:");
 		while ((password = in.readLine()) == null || password.length() == 0)
 			;
-		System.out.println("Please enter your password again for confirmation:");
-		while ((password2 = in.readLine()) == null || password2.length() == 0 || password.equals(password2)) {
-			if (password.length() > 0) {
-				System.out.println("Error: passwords did not match");
-			}
-		}
 		System.out.println("Please enter your name:");
 		while ((name = in.readLine()) == null || name.length() == 0)
 			;
@@ -258,17 +280,46 @@ public class testdriver2 {
 		while ((address = in.readLine()) == null || address.length() == 0)
 			;
 		System.out.println("Please enter your phone number (only digits):");
-		while ((phoneNumber = in.readLine()) == null || phoneNumber.length() == 0)
-			;
-		try {
-			Integer.parseInt(phoneNumber);
-		} catch (Exception e) {
-			System.out.println("Phone number can only consist of digits");
-			return;
+		while (true) {
+			while ((phoneNumber = in.readLine()) == null || phoneNumber.length() == 0)
+				;
+			try {
+				Integer.parseInt(phoneNumber);
+				break;
+			} catch (Exception e) {
+				System.out.println("Phone number can only consist of digits");
+			}
 		}
-
+		System.out.println("Please enter your availability.");
+		System.out.println("From hour (0-23)");
+		while (true) {
+			while ((startHour = in.readLine()) == null || startHour.length() == 0)
+				;
+			try {
+				int hour = Integer.parseInt(startHour);
+				if (hour >= 0 && hour <= 23) {
+					break;
+				}
+			} catch (Exception e) {
+				System.out.println("Hour has to be a number");
+			}
+		}
+		System.out.println("To hour (0-23)");
+		while (true) {
+			while ((endHour = in.readLine()) == null || endHour.length() == 0)
+				;
+			try {
+				int hour = Integer.parseInt(endHour);
+				if (hour >= 0 && hour <= 23)
+					break;
+			} catch (Exception e) {
+				System.out.println("Hour has to be a number");
+			}
+		}
 		driver = new Driver(username, password, con.stmt, name, address, Integer.parseInt(phoneNumber));
 		if (driver.registerForUber()) {
+			// now insert availability
+			driver.insertAvailability(Integer.parseInt(startHour), Integer.parseInt(endHour));
 			System.out.println("Driver registration successful");
 			handleDriverMenu();
 		} else {
@@ -458,7 +509,8 @@ public class testdriver2 {
 				ArrayList<Reservation> reservations = new ArrayList<Reservation>();
 				while (stillAdding) {
 					System.out.println("Please enter a time (00:00 - 23:59) for your reservation");
-					while ((input = in.readLine()) == null || input.length() != 5 || !Pattern.matches("^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$", input))
+					while ((input = in.readLine()) == null || input.length() != 5
+							|| !Pattern.matches("^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$", input))
 						;
 					Car[] cars = user.getAvailableCars(Integer.parseInt(input.substring(0, 2)));
 					String carDetails;
@@ -500,8 +552,7 @@ public class testdriver2 {
 				System.out.println("Here are all of the reservations you've created:");
 				String carDetails;
 				for (Reservation r : reservations) {
-					carDetails = String.format("time: %s, vin: %d, cost: %d", r.date,
-							r.vin, r.cost);
+					carDetails = String.format("time: %s, vin: %d, cost: %d", r.date, r.vin, r.cost);
 					System.out.println(carDetails);
 				}
 				System.out.println("1. Submit all of your reservations");
@@ -867,14 +918,16 @@ public class testdriver2 {
 			case 1:
 				// award top m trusted users
 				System.out.println("Please enter the number of users you want to find:");
-				while ((input = in.readLine()) == null || input.length() == 0);
+				while ((input = in.readLine()) == null || input.length() == 0)
+					;
 				String trustedUsers = admin.getMostTrustedUsers(Integer.parseInt(input));
 				System.out.println(trustedUsers);
 				break;
 			case 2:
 				// award top m useful users
 				System.out.println("Please enter the number of users you want to find:");
-				while ((input = in.readLine()) == null || input.length() == 0);
+				while ((input = in.readLine()) == null || input.length() == 0)
+					;
 				String usefulUsers = admin.getMostUsefulUsers(Integer.parseInt(input));
 				System.out.println(usefulUsers);
 				break;

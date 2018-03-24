@@ -257,4 +257,59 @@ public class Driver extends UberUser {
 
 		return true;
 	}
+	
+	/**
+	 * Inserts a new driver's availability.
+	 * 
+	 * @param startHour the first hour of the day a driver is available
+	 * @param endHour the last hour of the day a driver is available
+	 */
+	public void insertAvailability(int startHour, int endHour) {
+		String sql = String.format("select * from period where from_hour = %d and to_hour = %d;", startHour, endHour);
+		ResultSet rs = null;
+		int rs2 = 0;
+		int pid = 0;
+//		System.out.println("executing " + sql);
+		try {
+			rs = this.getStmt().executeQuery(sql);
+			if (rs.next()) {
+				pid = Integer.parseInt(rs.getString("pid"));
+			}
+
+			rs.close();
+		} catch (Exception e) {
+			System.out.println("cannot execute the query");
+		} finally {
+			freeResultSetResources(rs);
+		}
+		if (pid == 0) {
+			// we didn't find anything that matched so we have to insert
+			sql = String.format("insert into period (from_hour, to_hour) values(%d, %d)", startHour, endHour);
+			try {
+				rs2 = this.getStmt().executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
+			} catch (Exception e) {
+				System.out.println("cannot execute the query");
+			}
+			
+			// if rs2 == 0 then something is wrong with the database and it needs to be fixed
+			try {
+				ResultSet generatedKeys = this.getStmt().getGeneratedKeys();
+				if (generatedKeys.next()) {
+					pid = generatedKeys.getInt(1);
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
+		sql = String.format("insert into available (login, pid) values('%s', %d)", this.getLogin(), pid);
+		rs2 = 0;
+		try {
+			rs2 = this.getStmt().executeUpdate(sql);
+		} catch (Exception e) {
+			System.out.println("cannot execute the query");
+		}
+	}
 }
