@@ -97,7 +97,7 @@ public class User extends UberUser {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Deletes all reservations that have passed.
 	 */
@@ -111,36 +111,34 @@ public class User extends UberUser {
 			e.printStackTrace(System.out);
 		}
 	}
-	
+
 	/**
-	 * Grabs all of the cars available for reservation where the driver is 
-	 * working and not already reserved.
+	 * Grabs all of the cars available for reservation where the driver is working
+	 * and not already reserved.
 	 * 
-	 * @param time the time of the reservation
+	 * @param time
+	 *            the time of the reservation
 	 * @return An ArrayList of the cars available for reservation
 	 */
 	public ArrayList<Car> getAvailableCars(String time) {
 		int hour = Integer.parseInt(time.substring(0, 2));
 		// get all cars where the driver is available and not already reserved
 		ArrayList<Car> cars = new ArrayList<Car>();
-		// This bit of code from https://stackoverflow.com/questions/12575990/calendar-date-to-yyyy-mm-dd-format-in-java
+		// This bit of code from
+		// https://stackoverflow.com/questions/12575990/calendar-date-to-yyyy-mm-dd-format-in-java
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, 1);
 		SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
 		String date = format1.format(cal.getTime());
 		String datetime = date + " " + time + ":00";
 		// might also want to display price here if it correlates with category
-		String sql = String.format("SELECT cars.vin as vin, cars.category as category, a.pid as pid" + 
-				"FROM 5530db34.uc cars, 5530db34.available a" + 
-				"WHERE cars.login = a.login" + 
-				"	and a.pid in (SELECT pid" + 
-				"				FROM 5530db34.period" + 
-				"				WHERE from_hour <= %d AND to_hour >= %d)" + 
-				"	and cars.vin NOT IN (SELECT r.vin" + 
-				"						FROM 5530db34.reserve r" + 
-				"                        WHERE r.date < ADDTIME('%s', '-0:30:0')" + 
-				"							OR r.date > ADDTIME('%s', '0:30:0'));", hour, hour, datetime, datetime);
-		
+		String sql = String.format("SELECT cars.vin as vin, cars.category as category, a.pid as pid "
+				+ "FROM 5530db34.uc cars, 5530db34.available a " + "WHERE cars.login = a.login "
+				+ "and a.pid in (SELECT pid " + "FROM 5530db34.period " + "WHERE from_hour <= %d AND to_hour >= %d) "
+				+ "and cars.vin NOT IN (SELECT r.vin " + "FROM 5530db34.reserve r "
+				+ "WHERE r.date < ADDTIME('%s', '-0:30:0') " + "OR r.date > ADDTIME('%s', '0:30:0'));", hour, hour,
+				datetime, datetime);
+
 		ResultSet rs = null;
 		try {
 			rs = this.getStmt().executeQuery(sql);
@@ -158,12 +156,14 @@ public class User extends UberUser {
 
 		return cars;
 	}
-	
+
 	/**
 	 * Creates a reservation with a cost linked to the car category
 	 * 
-	 * @param datetime	date and time of reservation
-	 * @param car	other details for the reservation
+	 * @param datetime
+	 *            date and time of reservation
+	 * @param car
+	 *            other details for the reservation
 	 * @return a new Reservation
 	 */
 	public Reservation makeReservation(String datetime, Car car) {
@@ -177,11 +177,12 @@ public class User extends UberUser {
 		}
 		return new Reservation(this.getLogin(), car.vin, car.pid, cost, datetime);
 	}
-	
+
 	/**
 	 * Insets all of the user's added reservations.
 	 * 
-	 * @param reservations Arraylist of reservations
+	 * @param reservations
+	 *            Arraylist of reservations
 	 * @return true if successful, false if otherwise
 	 */
 	public boolean submitReservations(ArrayList<Reservation> reservations) {
@@ -207,23 +208,31 @@ public class User extends UberUser {
 		boolean val = rs > 0 ? true : false;
 		return val;
 	}
-	
+
 	/**
-	 * Checks to see if a ride being recorded is valid,
-	 * meaning a driver works during this time period.
+	 * Checks to see if a ride being recorded is valid, meaning a driver works
+	 * during this time period.
 	 * 
-	 * @param cost 	cost of the ride
-	 * @param date 	date of the ride
-	 * @param vin	car vin
-	 * @param from_hour	hour ride started
-	 * @param to_hour	hour ride ended
+	 * @param cost
+	 *            cost of the ride
+	 * @param date
+	 *            date of the ride
+	 * @param vin
+	 *            car vin
+	 * @param from_hour
+	 *            hour ride started
+	 * @param to_hour
+	 *            hour ride ended
 	 * @return Ride if ride is valid, null otherwise
 	 */
 	public Ride recordRide(int cost, String date, int vin, int from_hour, int to_hour) {
 		// check that this will be a valid ride
-		// get driver for vin and check that he matches with a pid containing these hours
-		String sql = String.format("SELECT login FROM 5530db34.available WHERE pid IN "
-				+ "(SELECT pid FROM 5530db34.period WHERE from_hour <= %d AND to_hour >= %d);", from_hour, to_hour);
+		// get driver for vin and check that he matches with a pid containing these
+		// hours
+		String sql = String.format(
+				"SELECT login FROM 5530db34.available WHERE pid IN "
+						+ "(SELECT pid FROM 5530db34.period WHERE from_hour <= %d AND to_hour >= %d);",
+				from_hour, to_hour);
 		ResultSet rs = null;
 		String output = "";
 		try {
@@ -238,14 +247,15 @@ public class User extends UberUser {
 		} finally {
 			freeResultSetResources(rs);
 		}
-		
+
 		return output.equals("") ? null : new Ride(cost, date, this.getLogin(), vin, from_hour, to_hour);
 	}
-	
+
 	/**
 	 * Inserts all of the rides a user has recorded into the database.
 	 * 
-	 * @param rides	an ArrayList of rides
+	 * @param rides
+	 *            an ArrayList of rides
 	 * @return true if insert successful, false otherwise
 	 */
 	public boolean submitRides(ArrayList<Ride> rides) {
@@ -255,10 +265,12 @@ public class User extends UberUser {
 		int rs = 0;
 		for (int i = 0; i < rides.size(); i++) {
 			ride = rides.get(i);
-			sql += String.format("(%d, '%s', '%s', %d, %d)", ride.cost, ride.date, this.getLogin(), ride.from_hour, ride.to_hour);
+			sql += String.format("(%d, '%s', '%s', %d, %d)", ride.cost, ride.date, this.getLogin(), ride.from_hour,
+					ride.to_hour);
 		}
 		ride = rides.get(rides.size() - 1);
-		sql += String.format("(%d, '%s', '%s', %d, %d)", ride.cost, ride.date, this.getLogin(), ride.from_hour, ride.to_hour);
+		sql += String.format("(%d, '%s', '%s', %d, %d)", ride.cost, ride.date, this.getLogin(), ride.from_hour,
+				ride.to_hour);
 		try {
 			this.getStmt().executeUpdate(sql);
 
@@ -269,15 +281,17 @@ public class User extends UberUser {
 		boolean val = rs > 0 ? true : false;
 		return val;
 	}
-	
+
 	/**
 	 * Attempts to add a car to favorites.
 	 * 
-	 * @param vin the vin of the car being favorited
+	 * @param vin
+	 *            the vin of the car being favorited
 	 * @return true if car successfully favorited, false otherwise
 	 */
 	public boolean favoriteCar(int vin) {
-		String sql = String.format("insert into favorites (vin, login, fv_date) values(%d, '%s', DATE(NOW()));", vin, this.getLogin());
+		String sql = String.format("insert into favorites (vin, login, fv_date) values(%d, '%s', DATE(NOW()));", vin,
+				this.getLogin());
 		int rs;
 		try {
 			rs = this.getStmt().executeUpdate(sql);
@@ -289,10 +303,11 @@ public class User extends UberUser {
 		}
 		return false;
 	}
-	
+
 	public boolean leaveFeedback(int vin, int score, String comment) {
-		String sql = String.format("insert into feedback (vin, login, score, text, fb_date) values(%d, '%s', %d, '%s', DATE(NOW()));",
-				vin, this.getLogin(), score, comment);
+		String sql = String.format(
+				"insert into feedback (vin, login, score, text, fb_date) values(%d, '%s', %d, '%s', DATE(NOW()));", vin,
+				this.getLogin(), score, comment);
 		int rs;
 		try {
 			rs = this.getStmt().executeUpdate(sql);
@@ -405,47 +420,49 @@ public class User extends UberUser {
 	 *            average score of just the trusted users (false)
 	 * @return return String variable that outputs the result of the query
 	 */
-	public String browseCars(String category, String address, String model,String model_address,String category_address,String model_category, boolean sortByFeedbacks) {
-		/*select uc.vin, uc.category, ct.model, ud.address, avg(score) 
-		 * from ud, is_c_types ict natural join c_types ct, uc left join feedback f on uc.vin=f.vin 
-		 * where ud.login=uc.login and ict.vin=uc.vin 
+	public String browseCars(String category, String address, String model, String model_address,
+			String category_address, String model_category, boolean sortByFeedbacks) {
+		/*
+		 * select uc.vin, uc.category, ct.model, ud.address, avg(score) from ud,
+		 * is_c_types ict natural join c_types ct, uc left join feedback f on
+		 * uc.vin=f.vin where ud.login=uc.login and ict.vin=uc.vin
 		 * 
-		 * and (category = 'luxury' or model='Focus' or address='something') 
+		 * and (category = 'luxury' or model='Focus' or address='something')
 		 * 
-		 * and f.login in (select login2 from trust where login1 = '%s') 
+		 * and f.login in (select login2 from trust where login1 = '%s')
 		 * 
 		 * group by uc.vin, ct.model, ud.address order by avg(score) desc
-		
-		*/
+		 * 
+		 */
 		String sql = "select uc.vin, uc.category, ct.model, ud.address, avg(score) "
 				+ "from ud, is_c_types ict natural join c_types ct, uc left join feedback f on uc.vin=f.vin "
 				+ "where ud.login=uc.login and ict.vin=uc.vin";
-		
-		if(!category.equals("") && !address.equals("") && !model.equals(""))
-			sql += String.format(" and (category = '%s' %s address='%s' %s model='%s')", category, category_address, address, model_address, model);
-		
+
+		if (!category.equals("") && !address.equals("") && !model.equals(""))
+			sql += String.format(" and (category = '%s' %s address='%s' %s model='%s')", category, category_address,
+					address, model_address, model);
+
 		else if (!category.equals("") && !address.equals(""))
 			sql += String.format(" and (category = '%s' %s address='%s')", category, category_address, address);
 		else if (!category.equals("") && !model.equals(""))
 			sql += String.format(" and (category = '%s' %s model='%s')", category, model_category, model);
 		else if (!address.equals("") && !model.equals(""))
 			sql += String.format(" and (address = '%s' %s model='%s')", address, model_address, model);
-		
+
 		else if (!category.equals(""))
 			sql += String.format(" and (category = '%s')", category);
 		else if (!address.equals(""))
 			sql += String.format(" and (address = '%s')", address);
 		else if (!model.equals(""))
-			sql += String.format(" and (model = '%s')", model);		
-		
+			sql += String.format(" and (model = '%s')", model);
+
 		if (!sortByFeedbacks)
-			sql += String.format(
-					" and f.login in (select login2 from trust where login1 = '%s')", this.getLogin());
+			sql += String.format(" and f.login in (select login2 from trust where login1 = '%s')", this.getLogin());
 		sql += " group by uc.vin, ct.model, ud.address order by avg(score) desc";
-		
+
 		String output = "";
 		ResultSet rs = null;
-		 System.out.println("executing " + sql);
+		System.out.println("executing " + sql);
 		try {
 			rs = this.getStmt().executeQuery(sql);
 			while (rs.next()) {
@@ -562,8 +579,7 @@ public class User extends UberUser {
 		} finally {
 			freeResultSetResources(rs);
 		}
-		String sqlSecondDegree = String.format(
-				"select f1.login from favorites f, favorites f1 "
+		String sqlSecondDegree = String.format("select f1.login from favorites f, favorites f1 "
 				+ "where f.vin=f1.vin and f.login<>f1.login and f.login='%s' and f1.login in "
 				+ "(select f1.login from favorites f, favorites f1 "
 				+ "where f.vin=f1.vin and f.login<>f1.login and f.login='%s')", uuLogin1, uuLogin2);
@@ -583,152 +599,141 @@ public class User extends UberUser {
 		} finally {
 			freeResultSetResources(rsSecondDegree);
 		}
-		
+
 		return "More than 2 degree of separation \n";
 	}
 
 	/**
-	 *	@return -> returns an arraylist object contaning all the possible categories  
-	 **/	
-	public ArrayList<String> getCategories()
-	{
+	 * @return -> returns an arraylist object contaning all the possible categories
+	 **/
+	public ArrayList<String> getCategories() {
 		ArrayList<String> categories = new ArrayList<>();
 		String sql = "select distinct category from uc";
 		ResultSet rs = null;
 		// System.out.println("executing " + sql);
-		try
-		{
+		try {
 			rs = this.getStmt().executeQuery(sql);
-			while (rs.next())
-			{
+			while (rs.next()) {
 				categories.add(rs.getString("category"));
 			}
 
 			rs.close();
-		} catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println("cannot execute the query");
 			e.printStackTrace(System.out);
-		} finally
-		{
+		} finally {
 			freeResultSetResources(rs);
 		}
-		
+
 		return categories;
 	}
-	
+
 	/**
-	 * @param m int variable -> m 
-	 * @return output String variable which represents the most popular 
-	 * 			rides for each category
+	 * @param m
+	 *            int variable -> m
+	 * @return output String variable which represents the most popular rides for
+	 *         each category
 	 */
-	public String getMostPopularUCs(int m)
-	{	
+	public String getMostPopularUCs(int m) {
 		ArrayList<String> categories = getCategories();
-		String output="";
+		String output = "";
 		String sql = "";
-		
-		for (String category : categories)
-		{
-			sql = String.format("select r.vin, uc.category, count(*) as totalRides from uc, ride r where r.vin=uc.vin and uc.category='%s' group by uc.category, r.vin order by count(*) desc limit %d", category, m);
+
+		for (String category : categories) {
+			sql = String.format(
+					"select r.vin, uc.category, count(*) as totalRides from uc, ride r where r.vin=uc.vin and uc.category='%s' group by uc.category, r.vin order by count(*) desc limit %d",
+					category, m);
 			ResultSet rs = null;
 			// System.out.println("executing " + sql);
-			try
-			{
+			try {
 				rs = this.getStmt().executeQuery(sql);
-				while (rs.next())
-				{
-					output += String.format(" %d  %s %d \n", rs.getInt("vin"), rs.getString("category"), rs.getInt("totalRides"));
+				while (rs.next()) {
+					output += String.format(" %d  %s %d \n", rs.getInt("vin"), rs.getString("category"),
+							rs.getInt("totalRides"));
 				}
 
 				rs.close();
-			} catch (Exception e)
-			{
+			} catch (Exception e) {
 				System.out.println("cannot execute the query");
 				e.printStackTrace(System.out);
-			} finally
-			{
+			} finally {
 				freeResultSetResources(rs);
 			}
-		}		
-		
+		}
+
 		return output;
 	}
-	
+
 	/**
-	 * @param m int variable -> m 
-	 * @return output String variable which represents the most expensive 
-	 * 			rides for each category
+	 * @param m
+	 *            int variable -> m
+	 * @return output String variable which represents the most expensive rides for
+	 *         each category
 	 */
-	public String getMostExpensiveUCs(int m)
-	{
+	public String getMostExpensiveUCs(int m) {
 		ArrayList<String> categories = getCategories();
-		String output="";
+		String output = "";
 		String sql = "";
-		
-		for (String category : categories)
-		{
-			sql = String.format("select r.vin, uc.category, avg(cost) as avgCost from uc, ride r where r.vin=uc.vin and uc.category= '%s' group by uc.category, r.vin order by avg(cost) desc limit %d", category, m);
+
+		for (String category : categories) {
+			sql = String.format(
+					"select r.vin, uc.category, avg(cost) as avgCost from uc, ride r where r.vin=uc.vin and uc.category= '%s' group by uc.category, r.vin order by avg(cost) desc limit %d",
+					category, m);
 			ResultSet rs = null;
 			// System.out.println("executing " + sql);
-			try
-			{
+			try {
 				rs = this.getStmt().executeQuery(sql);
-				while (rs.next())
-				{
-					output += String.format(" %d  %s %f \n", rs.getInt("vin"), rs.getString("category"), rs.getFloat("avgCost"));
+				while (rs.next()) {
+					output += String.format(" %d  %s %f \n", rs.getInt("vin"), rs.getString("category"),
+							rs.getFloat("avgCost"));
 				}
 
 				rs.close();
-			} catch (Exception e)
-			{
+			} catch (Exception e) {
 				System.out.println("cannot execute the query");
 				e.printStackTrace(System.out);
-			} finally
-			{
+			} finally {
 				freeResultSetResources(rs);
 			}
-		}		
-		
+		}
+
 		return output;
 	}
-	
+
 	/**
-	 * @param m int variable -> m 
-	 * @return output String variable which represents the best
-	 * 			drivers for each category
+	 * @param m
+	 *            int variable -> m
+	 * @return output String variable which represents the best drivers for each
+	 *         category
 	 */
-	public String getBestUDs(int m)
-	{
+	public String getBestUDs(int m) {
 		ArrayList<String> categories = getCategories();
-		String output="";
+		String output = "";
 		String sql = "";
-		
-		for (String category : categories)
-		{
-			sql = String.format("select uc.login, uc.category, avg(score) as avgScore from uc, feedback f where uc.vin=f.vin and uc.category='%s' group by uc.login, uc.category order by avg(score) desc limit %d", category, m);
+
+		for (String category : categories) {
+			sql = String.format(
+					"select uc.login, uc.category, avg(score) as avgScore from uc, feedback f where uc.vin=f.vin and uc.category='%s' group by uc.login, uc.category order by avg(score) desc limit %d",
+					category, m);
 			ResultSet rs = null;
 			// System.out.println("executing " + sql);
-			try
-			{
+			try {
 				rs = this.getStmt().executeQuery(sql);
-				while (rs.next())
-				{
-					output += String.format(" %s  %s %f \n", rs.getString("login"), rs.getString("category"), rs.getFloat("avgScore"));
+				while (rs.next()) {
+					output += String.format(" %s  %s %f \n", rs.getString("login"), rs.getString("category"),
+							rs.getFloat("avgScore"));
 				}
 
 				rs.close();
-			} catch (Exception e)
-			{
+			} catch (Exception e) {
 				System.out.println("cannot execute the query");
 				e.printStackTrace(System.out);
-			} finally
-			{
+			} finally {
 				freeResultSetResources(rs);
 			}
-		}		
-		
+		}
+
 		return output;
-	}	
+	}
 
 }

@@ -12,34 +12,42 @@ public class Driver extends UberUser {
 	/**
 	 * Creates a driver with the minimum required fields.
 	 * 
-	 * @param login		driver login
-	 * @param password	driver password
-	 * @param stmt		statement of connection used
+	 * @param login
+	 *            driver login
+	 * @param password
+	 *            driver password
+	 * @param stmt
+	 *            statement of connection used
 	 */
-	public Driver(String login, String password, Statement stmt)
-	{
+	public Driver(String login, String password, Statement stmt) {
 		super(login, password, stmt);
 	}
-	
+
 	/**
 	 * Creates a driver and allows non-required fields to be filled.
 	 * 
-	 * @param login			driver login
-	 * @param password		driver password
-	 * @param stmt			statement of connection used
-	 * @param name			name of driver
-	 * @param address		address of driver
-	 * @param phoneNumber	phone number of driver
+	 * @param login
+	 *            driver login
+	 * @param password
+	 *            driver password
+	 * @param stmt
+	 *            statement of connection used
+	 * @param name
+	 *            name of driver
+	 * @param address
+	 *            address of driver
+	 * @param phoneNumber
+	 *            phone number of driver
 	 */
 	public Driver(String login, String password, Statement stmt, String name, String address, int phoneNumber) {
 		super(login, password, stmt, name, address, phoneNumber);
 	}
-	
+
 	public boolean loginToUber(String login, String password) {
 		String sql = String.format("select * from ud where login = '%s' and password = '%s'", login, password);
 		String output = "";
 		ResultSet rs = null;
-//		System.out.println("executing " + sql);
+		// System.out.println("executing " + sql);
 		try {
 			rs = this.getStmt().executeQuery(sql);
 			while (rs.next()) {
@@ -61,33 +69,32 @@ public class Driver extends UberUser {
 		}
 		return true;
 	}
-	
-	public boolean registerForUber() {		
+
+	public boolean registerForUber() {
 		// make sure login returns false
 		if (loginToUber(this.getLogin(), this.getPassword())) {
 			return false;
 		}
-		String sql = String.format("insert into ud (login, name, address, phone, password) values('%s', '%s', '%s', %d, '%s');", 
-					this.getLogin(), this.getName(), this.getAddress(), this.getPhoneNumber(), this.getPassword());
-		
+		String sql = String.format(
+				"insert into ud (login, name, address, phone, password) values('%s', '%s', '%s', %d, '%s');",
+				this.getLogin(), this.getName(), this.getAddress(), this.getPhoneNumber(), this.getPassword());
+
 		int rs = 0;
-//		System.out.println("executing " + sql);
-		try
-		{
+		// System.out.println("executing " + sql);
+		try {
 			rs = this.getStmt().executeUpdate(sql);
-			
-		} catch (Exception e)
-		{
+
+		} catch (Exception e) {
 			System.out.println("cannot execute the query");
 			e.printStackTrace(System.out);
 		}
-		
+
 		if (rs > 0) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Creates and adds a car of the user.
 	 * 
@@ -239,7 +246,7 @@ public class Driver extends UberUser {
 			if (rs == 0) {
 				return false;
 			}
-			
+
 			try {
 				ResultSet generatedKeys = this.getStmt().getGeneratedKeys();
 				if (generatedKeys.next()) {
@@ -266,19 +273,21 @@ public class Driver extends UberUser {
 
 		return true;
 	}
-	
+
 	/**
 	 * Inserts a new driver's availability.
 	 * 
-	 * @param startHour the first hour of the day a driver is available
-	 * @param endHour the last hour of the day a driver is available
+	 * @param startHour
+	 *            the first hour of the day a driver is available
+	 * @param endHour
+	 *            the last hour of the day a driver is available
 	 */
 	public void insertAvailability(int startHour, int endHour) {
 		String sql = String.format("select * from period where from_hour = %d and to_hour = %d;", startHour, endHour);
 		ResultSet rs = null;
 		int rs2 = 0;
 		int pid = 0;
-//		System.out.println("executing " + sql);
+		// System.out.println("executing " + sql);
 		try {
 			rs = this.getStmt().executeQuery(sql);
 			if (rs.next()) {
@@ -301,8 +310,9 @@ public class Driver extends UberUser {
 				System.out.println("cannot execute the query");
 				e.printStackTrace(System.out);
 			}
-			
-			// if rs2 == 0 then something is wrong with the database and it needs to be fixed
+
+			// if rs2 == 0 then something is wrong with the database and it needs to be
+			// fixed
 			try {
 				ResultSet generatedKeys = this.getStmt().getGeneratedKeys();
 				if (generatedKeys.next()) {
@@ -312,9 +322,9 @@ public class Driver extends UberUser {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 		}
-		
+
 		sql = String.format("insert into available (login, pid) values('%s', %d)", this.getLogin(), pid);
 		rs2 = 0;
 		try {

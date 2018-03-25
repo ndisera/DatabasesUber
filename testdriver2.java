@@ -530,36 +530,36 @@ public class testdriver2 {
 					ArrayList<Car> cars = user.getAvailableCars(input);
 					if (cars.isEmpty()) {
 						System.out.println("There are no available cars for this time");
-						continue;
-					}
-					String carDetails;
-					// get all available cars for this time
-					System.out.println("These are the available cars");
-					for (int i = 0; i < cars.size(); i++) {
-						carDetails = String.format("%d. vin: %d, category: %s, cost: %d", i + 1, cars.get(i).vin,
-								cars.get(i).category);
-						System.out.println(carDetails);
-					}
-					System.out.println(cars.size() + 1 + ": None");
-					System.out.println("Please enter your choice:");
-					// tell the user to select one of these cars (enter their vin, or list their
-					// vins alongside a number and enter that)
-					while (true) {
-						while ((input = in.readLine()) == null || input.length() == 0)
-							;
-						try {
-							c = Integer.parseInt(input);
-							if (c <= cars.size()) {
-								reservations.add(user.makeReservation(input, cars.get(c - 1)));
-								break;
-							} else if (c == cars.size() + 1) {
-								// none of these worked
-								break;
-							} else {
-								System.out.println("Your input didn't match any of the choices");
+					} else {
+						String carDetails;
+						// get all available cars for this time
+						System.out.println("These are the available cars");
+						for (int i = 0; i < cars.size(); i++) {
+							carDetails = String.format("%d. vin: %d, category: %s, cost: %d", i + 1, cars.get(i).vin,
+									cars.get(i).category);
+							System.out.println(carDetails);
+						}
+						System.out.println(cars.size() + 1 + ": None");
+						System.out.println("Please enter your choice:");
+						// tell the user to select one of these cars (enter their vin, or list their
+						// vins alongside a number and enter that)
+						while (true) {
+							while ((input = in.readLine()) == null || input.length() == 0)
+								;
+							try {
+								c = Integer.parseInt(input);
+								if (c <= cars.size()) {
+									reservations.add(user.makeReservation(input, cars.get(c - 1)));
+									break;
+								} else if (c == cars.size() + 1) {
+									// none of these worked
+									break;
+								} else {
+									System.out.println("Your input didn't match any of the choices");
+								}
+							} catch (Exception e) {
+								continue;
 							}
-						} catch (Exception e) {
-							continue;
 						}
 					}
 					// remember that I give them the option to keep adding until satisfied
@@ -572,6 +572,8 @@ public class testdriver2 {
 				}
 				// if they are, I display all of their reservations back to them and give them
 				// the choice to save or cancel
+				if (reservations.isEmpty())
+					break;
 				System.out.println("Here are all of the reservations you've created:");
 				String carDetails;
 				for (Reservation r : reservations) {
@@ -632,12 +634,11 @@ public class testdriver2 {
 						SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 						format.setLenient(false);
 						try {
-					          format.parse(rideDate);
-					          break;
-					     }
-					     catch(Exception e){
-					    	 System.out.println("Incorrect date format");
-					     }
+							format.parse(rideDate);
+							break;
+						} catch (Exception e) {
+							System.out.println("Incorrect date format");
+						}
 					}
 					while (true) {
 						System.out.println("Please enter the cost of your ride (In dollars, no $, i.e. 20)");
@@ -702,6 +703,9 @@ public class testdriver2 {
 				}
 				// if they are, I display all of their reservations back to them and give them
 				// the choice to save or cancel
+
+				if (rides.isEmpty())
+					break;
 				System.out.println("Here are all of the rides you've created:");
 				for (Ride r : rides) {
 					carDetails = String.format("cost: %d, date: %s, vin: %d, from hour: %d, to hour: %d", r.cost,
