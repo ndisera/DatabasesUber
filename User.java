@@ -1,9 +1,7 @@
 package cs5530;
 
 import java.sql.*;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import com.mysql.jdbc.exceptions.*;
 
@@ -107,7 +105,6 @@ public class User extends UberUser {
 		String sql = "delete from reserve where date < now();";
 		try {
 			this.getStmt().executeUpdate(sql);
-
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
 			e.printStackTrace(System.out);
@@ -122,23 +119,18 @@ public class User extends UberUser {
 	 *            the time of the reservation
 	 * @return An ArrayList of the cars available for reservation
 	 */
-	public ArrayList<Car> getAvailableCars(String time) {
+	public ArrayList<Car> getAvailableCars(String date, String time) {
 		int hour = Integer.parseInt(time.substring(0, 2));
 		// get all cars where the driver is available and not already reserved
 		ArrayList<Car> cars = new ArrayList<Car>();
-		// This bit of code from
-		// https://stackoverflow.com/questions/12575990/calendar-date-to-yyyy-mm-dd-format-in-java
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DATE, 1);
-		SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
-		String date = format1.format(cal.getTime());
 		String datetime = date + " " + time + ":00";
 		// might also want to display price here if it correlates with category
 		String sql = String.format("SELECT cars.vin as vin, cars.category as category, a.pid as pid "
 				+ "FROM 5530db34.uc cars, 5530db34.available a " + "WHERE cars.login = a.login "
 				+ "and a.pid in (SELECT pid " + "FROM 5530db34.period " + "WHERE from_hour <= %d AND to_hour >= %d) "
 				+ "and cars.vin NOT IN (SELECT r.vin " + "FROM 5530db34.reserve r "
-				+ "WHERE r.date < ADDTIME('%s', '-0:30:0') " + "OR r.date > ADDTIME('%s', '0:30:0'));", hour, hour,
+				+ "WHERE (r.date > ADDTIME('%s', '-0:30:0') AND r.date < ADDTIME('%s', '0:30:0'))"
+				+ "and r.date > NOW());", hour, hour,
 				datetime, datetime);
 
 		ResultSet rs = null;
@@ -201,8 +193,7 @@ public class User extends UberUser {
 		res = reservations.get(reservations.size() - 1);
 		sql += String.format("('%s', %d, %d, %d, '%s');", this.getLogin(), res.vin, res.pid, res.cost, res.date);
 		try {
-			this.getStmt().executeUpdate(sql);
-
+			rs = this.getStmt().executeUpdate(sql);
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
 			e.printStackTrace(System.out);
@@ -316,7 +307,7 @@ public class User extends UberUser {
 				return true;
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+			System.out.println(e.getMessage());
 		}
 		return false;
 	}
