@@ -517,6 +517,8 @@ public class testdriver2 {
 			switch (c) {
 			case 1:
 				// make a reservation
+				// delete all of the reservations that have expired
+				user.deleteReservations();
 				boolean stillAdding = true;
 				ArrayList<Reservation> reservations = new ArrayList<Reservation>();
 				while (stillAdding) {
@@ -524,15 +526,20 @@ public class testdriver2 {
 					while ((input = in.readLine()) == null || input.length() != 5
 							|| !Pattern.matches("^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$", input))
 						;
-					Car[] cars = user.getAvailableCars(Integer.parseInt(input.substring(0, 2)));
+					ArrayList<Car> cars = user.getAvailableCars(input);
+					if (cars.isEmpty()) {
+						System.out.println("There are no available cars for this time");
+						continue;
+					}
 					String carDetails;
 					// get all available cars for this time
 					System.out.println("These are the available cars");
-					for (int i = 0; i < cars.length; i++) {
-						carDetails = String.format("%d. vin: %d, category: %s, cost: %d", i + 1, cars[i].vin,
-								cars[i].category);
+					for (int i = 0; i < cars.size(); i++) {
+						carDetails = String.format("%d. vin: %d, category: %s, cost: %d", i + 1, cars.get(i).vin,
+								cars.get(i).category);
 						System.out.println(carDetails);
 					}
+					System.out.println(cars.size() + 1 + ": None"); 
 					System.out.println("Please enter your choice:");
 					// tell the user to select one of these cars (enter their vin, or list their
 					// vins alongside a number and enter that)
@@ -541,7 +548,11 @@ public class testdriver2 {
 							;
 						try {
 							c = Integer.parseInt(input);
-							if (c < cars.length) {
+							if (c <= cars.size()) {
+								reservations.add(user.makeReservation(input, cars.get(c - 1)));
+								break;
+							} else if (c == cars.size() + 1) {
+								// none of these worked
 								break;
 							} else {
 								System.out.println("Your input didn't match any of the choices");
@@ -550,7 +561,6 @@ public class testdriver2 {
 							continue;
 						}
 					}
-					reservations.add(user.makeReservation(input, cars[c - 1].vin));
 					// remember that I give them the option to keep adding until satisfied
 					System.out.println("Are you done adding reservations? (y/n)");
 					while ((input = in.readLine()) == null || (!input.equals("y") && !input.equals("n")))
@@ -582,7 +592,13 @@ public class testdriver2 {
 
 					switch (c) {
 					case 1:
-						user.submitReservations(reservations);
+						if (reservations.isEmpty()) {
+							System.out.println("No reservations to be submitted");
+						} else if (user.submitReservations(reservations)) {
+							System.out.println("Reservations submitted successfully");
+						} else {
+							System.out.println("Reservation submission failed");
+						}
 						number = true;
 						break;
 					case 2:

@@ -1,7 +1,9 @@
 package cs5530;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * Provides all of the features for a user or "rider" of UUber.
@@ -96,25 +98,102 @@ public class User extends UberUser {
 		return false;
 	}
 	
-	public Car[] getAvailableCars(int time) {
-		// get all cars where the driver is available and not already reserved
-		
-		// input might be messed up here
-		return new Car[] {};
+	/**
+	 * Deletes all reservations that have passed.
+	 */
+	public void deleteReservations() {
+		String sql = "delete from reserve where date < now();";
+		try {
+			this.getStmt().executeUpdate(sql);
+
+		} catch (Exception e) {
+			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
+		}
 	}
 	
-	public Reservation makeReservation(String time, int vin) {
-		// specify a time period (00:00 - 23:59)
-		int pid = 0;
-		int cost = 0;
-		// perform check and delete all reservations where the datetime has passed
-		// return all cars where the driver is available during that period and doesn't have a reservation for that time period
-		return new Reservation(this.getLogin(), vin, pid, cost, time);
+	/**
+	 * Grabs all of the cars available for reservation where the driver is 
+	 * working and not already reserved.
+	 * 
+	 * @param time the time of the reservation
+	 * @return An ArrayList of the cars available for reservation
+	 */
+	public ArrayList<Car> getAvailableCars(String time) {
+		int hour = Integer.parseInt(time.substring(0, 2));
+		// get all cars where the driver is available and not already reserved
+		ArrayList<Car> cars = new ArrayList<Car>();
+		// This bit of code from https://stackoverflow.com/questions/12575990/calendar-date-to-yyyy-mm-dd-format-in-java
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, 1);
+		SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
+		String date = format1.format(cal.getTime());
+		String datetime = date + " " + time + ":00";
+		// might also want to display price here if it correlates with category
+		String sql = String.format("SELECT cars.vin as vin, cars.category as category, a.pid as pid" + 
+				"FROM 5530db34.uc cars, 5530db34.available a" + 
+				"WHERE cars.login = a.login" + 
+				"	and a.pid in (SELECT pid" + 
+				"				FROM 5530db34.period" + 
+				"				WHERE from_hour <= %d AND to_hour >= %d)" + 
+				"	and cars.vin NOT IN (SELECT r.vin" + 
+				"						FROM 5530db34.reserve r" + 
+				"                        WHERE r.date < ADDTIME('%s', '-0:30:0')" + 
+				"							OR r.date > ADDTIME('%s', '0:30:0'));", hour, hour, datetime, datetime);
+		
+		ResultSet rs = null;
+		// System.out.println("executing " + sql);
+		try {
+			rs = this.getStmt().executeQuery(sql);
+			while (rs.next()) {
+				cars.add(new Car(rs.getInt("vin"), rs.getString("category"), rs.getInt("pid")));
+			}
+
+			rs.close();
+		} catch (Exception e) {
+			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
+		} finally {
+			freeResultSetResources(rs);
+		}
+
+		return cars;
+	}
+	
+	public Reservation makeReservation(String datetime, Car car) {
+		// getting cost from category
+		// most of the time will be economy
+		int cost = 15;
+		if (car.category.equals("comfort")) {
+			cost = 20;
+		} else if (car.category.equals("luxury")) {
+			cost = 25;
+		}
+		return new Reservation(this.getLogin(), car.vin, car.pid, cost, datetime);
 	}
 	
 	public boolean submitReservations(ArrayList<Reservation> reservations) {
 		// Here I insert each one of these reservations
-		return false;
+		// assume that reservations isn't empty here
+		String sql = "insert into reserve (login, vin, pid, cost, date) values";
+		int rs = 0;
+		Reservation res;
+		// if reservations size isn't zero
+		for (int i = 0; i < reservations.size() - 1; i++) {
+			res = reservations.get(i);
+			sql += String.format("('%s', %d, %d, %d, '%s'),", this.getLogin(), res.vin, res.pid, res.cost, res.date);
+		}
+		res = reservations.get(reservations.size() - 1);
+		sql += String.format("('%s', %d, %d, %d, '%s');", this.getLogin(), res.vin, res.pid, res.cost, res.date);
+		try {
+			this.getStmt().executeUpdate(sql);
+
+		} catch (Exception e) {
+			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
+		}
+		boolean val = rs > 0 ? true : false;
+		return val;
 	}
 	
 	public Ride recordRide(int cost, String date, int vin, int from_hour, int to_hour) {
