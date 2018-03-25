@@ -432,9 +432,7 @@ public class User extends UberUser {
 	 * @return return String variable that outputs the result of the query
 	 */
 	public String getUsefulFeedbacks(String udLogin, int numberOfFeedbacks) {
-		String sql = String.format("select f.fid, f.vin, f.login, f.score, f.text " // ,
-																					// f.fb_date
-																					// "
+		String sql = String.format("select f.fid, f.vin, f.login, f.score, f.text " 
 				+ "from feedback f, rates r, uc, ud "
 				+ "where r.fid = f.fid and f.vin = uc.vin and uc.login = ud.login and ud.login = '%s' "
 				+ "group by f.fid order by avg(rating) desc", udLogin);
