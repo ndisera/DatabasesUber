@@ -99,19 +99,6 @@ public class User extends UberUser {
 	}
 
 	/**
-	 * Deletes all reservations that have passed.
-	 */
-	public void deleteReservations() {
-		String sql = "delete from reserve where date < now();";
-		try {
-			this.getStmt().executeUpdate(sql);
-		} catch (Exception e) {
-			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
-		}
-	}
-
-	/**
 	 * Grabs all of the cars available for reservation where the driver is working
 	 * and not already reserved.
 	 * 
@@ -130,8 +117,7 @@ public class User extends UberUser {
 				+ "and a.pid in (SELECT pid " + "FROM 5530db34.period " + "WHERE from_hour <= %d AND to_hour >= %d) "
 				+ "and cars.vin NOT IN (SELECT r.vin " + "FROM 5530db34.reserve r "
 				+ "WHERE (r.date > ADDTIME('%s', '-0:30:0') AND r.date < ADDTIME('%s', '0:30:0'))"
-				+ "and r.date > NOW());", hour, hour,
-				datetime, datetime);
+				+ "and r.date > NOW());", hour, hour, datetime, datetime);
 
 		ResultSet rs = null;
 		try {
@@ -169,7 +155,27 @@ public class User extends UberUser {
 		} else if (car.category.equals("luxury")) {
 			cost = 25;
 		}
-		return new Reservation(this.getLogin(), car.vin, car.pid, cost, datetime);
+		// update or insert
+		// do a select here and see if any results are returned
+		String sql = String.format("select * from reserve where vin = %d and login = '%s' and pid = %d", car.vin,
+				this.getLogin(), car.pid);
+		ResultSet rs = null;
+		int count = 0;
+		try {
+			rs = this.getStmt().executeQuery(sql);
+			while (rs.next()) {
+				count++;
+			}
+			rs.close();
+		} catch (Exception e) {
+			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
+		} finally {
+			freeResultSetResources(rs);
+		}
+		Reservation val = count == 0 ? new Reservation(this.getLogin(), car.vin, car.pid, cost, datetime, "insert")
+				: new Reservation(this.getLogin(), car.vin, car.pid, cost, datetime, "update");
+		return val;
 	}
 
 	/**
@@ -180,26 +186,64 @@ public class User extends UberUser {
 	 * @return true if successful, false if otherwise
 	 */
 	public boolean submitReservations(ArrayList<Reservation> reservations) {
-		// Here I insert each one of these reservations
+		// Here I insert or update each one of these reservations
+
+		// split reservations into insert and input
+		ArrayList<Reservation> updates = new ArrayList<Reservation>();
+		ArrayList<Reservation> inserts = new ArrayList<Reservation>();
+		for (Reservation r : reservations) {
+			if (r.operation.equals("update")) {
+				updates.add(r);
+			} else {
+				inserts.add(r);
+			}
+		}
+
+		// now perform all inserts and all updates
+
 		// assume that reservations isn't empty here
 		String sql = "insert into reserve (login, vin, pid, cost, date) values";
 		int rs = 0;
 		Reservation res;
+		boolean val = true;
 		// if reservations size isn't zero
-		for (int i = 0; i < reservations.size() - 1; i++) {
-			res = reservations.get(i);
-			sql += String.format("('%s', %d, %d, %d, '%s'),", this.getLogin(), res.vin, res.pid, res.cost, res.date);
+		if (!inserts.isEmpty()) {
+			for (int i = 0; i < inserts.size() - 1; i++) {
+				res = inserts.get(i);
+				sql += String.format("('%s', %d, %d, %d, '%s'),", this.getLogin(), res.vin, res.pid, res.cost,
+						res.date);
+			}
+			res = inserts.get(inserts.size() - 1);
+			sql += String.format("('%s', %d, %d, %d, '%s');", this.getLogin(), res.vin, res.pid, res.cost, res.date);
+			try {
+				rs = this.getStmt().executeUpdate(sql);
+			} catch (Exception e) {
+				System.out.println("cannot execute the query");
+				e.printStackTrace(System.out);
+			}
+			val = rs > 0 ? true : false;
 		}
-		res = reservations.get(reservations.size() - 1);
-		sql += String.format("('%s', %d, %d, %d, '%s');", this.getLogin(), res.vin, res.pid, res.cost, res.date);
-		try {
-			rs = this.getStmt().executeUpdate(sql);
-		} catch (Exception e) {
-			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+
+		int rs2 = 0;
+		boolean val2 = true;
+		// now perform updates
+		if (!updates.isEmpty()) {
+			for (Reservation r : updates) {
+				sql = String.format(
+						"update reserve set cost = %d, date = '%s' where login = '%s' and vin = %d and pid = %d",
+						r.cost, r.date, this.getLogin(), r.vin, r.pid);
+				try {
+					this.getStmt().executeUpdate(sql);
+					rs2++;
+				} catch (Exception e) {
+					System.out.println("cannot execute the query");
+					e.printStackTrace(System.out);
+				}
+			}
 		}
-		boolean val = rs > 0 ? true : false;
-		return val;
+
+		val2 = rs2 == updates.size() ? true : false;
+		return val && val2;
 	}
 
 	/**
@@ -258,12 +302,12 @@ public class User extends UberUser {
 		int rs = 0;
 		for (int i = 0; i < rides.size() - 1; i++) {
 			ride = rides.get(i);
-			sql += String.format("(%d, '%s', '%s', %d, %d, %d),", ride.cost, ride.date, this.getLogin(), ride.vin, ride.from_hour,
-					ride.to_hour);
+			sql += String.format("(%d, '%s', '%s', %d, %d, %d),", ride.cost, ride.date, this.getLogin(), ride.vin,
+					ride.from_hour, ride.to_hour);
 		}
 		ride = rides.get(rides.size() - 1);
-		sql += String.format("(%d, '%s', '%s', %d, %d, %d);", ride.cost, ride.date, this.getLogin(), ride.vin, ride.from_hour,
-				ride.to_hour);
+		sql += String.format("(%d, '%s', '%s', %d, %d, %d);", ride.cost, ride.date, this.getLogin(), ride.vin,
+				ride.from_hour, ride.to_hour);
 		try {
 			rs = this.getStmt().executeUpdate(sql);
 		} catch (Exception e) {
@@ -484,10 +528,10 @@ public class User extends UberUser {
 	 * @return return String variable that outputs the result of the query
 	 */
 	public String getUsefulFeedbacks(String udLogin, int numberOfFeedbacks) {
-		String sql = String.format("select f.fid, f.vin, f.login, f.score, f.text " 
-				+ "from feedback f, rates r, uc, ud "
-				+ "where r.fid = f.fid and f.vin = uc.vin and uc.login = ud.login and ud.login = '%s' "
-				+ "group by f.fid order by avg(rating) desc", udLogin);
+		String sql = String
+				.format("select f.fid, f.vin, f.login, f.score, f.text " + "from feedback f, rates r, uc, ud "
+						+ "where r.fid = f.fid and f.vin = uc.vin and uc.login = ud.login and ud.login = '%s' "
+						+ "group by f.fid order by avg(rating) desc", udLogin);
 		String output = "";
 		ResultSet rs = null;
 		// System.out.println("executing " + sql);
