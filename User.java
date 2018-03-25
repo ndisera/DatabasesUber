@@ -142,7 +142,6 @@ public class User extends UberUser {
 				"							OR r.date > ADDTIME('%s', '0:30:0'));", hour, hour, datetime, datetime);
 		
 		ResultSet rs = null;
-		// System.out.println("executing " + sql);
 		try {
 			rs = this.getStmt().executeQuery(sql);
 			while (rs.next()) {
@@ -160,6 +159,13 @@ public class User extends UberUser {
 		return cars;
 	}
 	
+	/**
+	 * Creates a reservation with a cost linked to the car category
+	 * 
+	 * @param datetime	date and time of reservation
+	 * @param car	other details for the reservation
+	 * @return a new Reservation
+	 */
 	public Reservation makeReservation(String datetime, Car car) {
 		// getting cost from category
 		// most of the time will be economy
@@ -172,6 +178,12 @@ public class User extends UberUser {
 		return new Reservation(this.getLogin(), car.vin, car.pid, cost, datetime);
 	}
 	
+	/**
+	 * Insets all of the user's added reservations.
+	 * 
+	 * @param reservations Arraylist of reservations
+	 * @return true if successful, false if otherwise
+	 */
 	public boolean submitReservations(ArrayList<Reservation> reservations) {
 		// Here I insert each one of these reservations
 		// assume that reservations isn't empty here
@@ -196,13 +208,66 @@ public class User extends UberUser {
 		return val;
 	}
 	
+	/**
+	 * Checks to see if a ride being recorded is valid,
+	 * meaning a driver works during this time period.
+	 * 
+	 * @param cost 	cost of the ride
+	 * @param date 	date of the ride
+	 * @param vin	car vin
+	 * @param from_hour	hour ride started
+	 * @param to_hour	hour ride ended
+	 * @return Ride if ride is valid, null otherwise
+	 */
 	public Ride recordRide(int cost, String date, int vin, int from_hour, int to_hour) {
-		return new Ride(cost, date, this.getLogin(), vin, from_hour, to_hour);
+		// check that this will be a valid ride
+		// get driver for vin and check that he matches with a pid containing these hours
+		String sql = String.format("SELECT login FROM 5530db34.available WHERE pid IN "
+				+ "(SELECT pid FROM 5530db34.period WHERE from_hour <= %d AND to_hour >= %d);", from_hour, to_hour);
+		ResultSet rs = null;
+		String output = "";
+		try {
+			rs = this.getStmt().executeQuery(sql);
+			while (rs.next()) {
+				output += rs.getString("login");
+			}
+			rs.close();
+		} catch (Exception e) {
+			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
+		} finally {
+			freeResultSetResources(rs);
+		}
+		
+		return output.equals("") ? null : new Ride(cost, date, this.getLogin(), vin, from_hour, to_hour);
 	}
 	
+	/**
+	 * Inserts all of the rides a user has recorded into the database.
+	 * 
+	 * @param rides	an ArrayList of rides
+	 * @return true if insert successful, false otherwise
+	 */
 	public boolean submitRides(ArrayList<Ride> rides) {
 		// Here I insert each one of these rides
-		return false;
+		String sql = "insert into ride (cost, date, login, vin, from_hour, to_hour) values";
+		Ride ride = null;
+		int rs = 0;
+		for (int i = 0; i < rides.size(); i++) {
+			ride = rides.get(i);
+			sql += String.format("(%d, '%s', '%s', %d, %d)", ride.cost, ride.date, this.getLogin(), ride.from_hour, ride.to_hour);
+		}
+		ride = rides.get(rides.size() - 1);
+		sql += String.format("(%d, '%s', '%s', %d, %d)", ride.cost, ride.date, this.getLogin(), ride.from_hour, ride.to_hour);
+		try {
+			this.getStmt().executeUpdate(sql);
+
+		} catch (Exception e) {
+			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
+		}
+		boolean val = rs > 0 ? true : false;
+		return val;
 	}
 	
 	/**

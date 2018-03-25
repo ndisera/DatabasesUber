@@ -2,6 +2,7 @@ package cs5530;
 
 import java.lang.*;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.io.*;
@@ -539,7 +540,7 @@ public class testdriver2 {
 								cars.get(i).category);
 						System.out.println(carDetails);
 					}
-					System.out.println(cars.size() + 1 + ": None"); 
+					System.out.println(cars.size() + 1 + ": None");
 					System.out.println("Please enter your choice:");
 					// tell the user to select one of these cars (enter their vin, or list their
 					// vins alongside a number and enter that)
@@ -615,6 +616,7 @@ public class testdriver2 {
 				// record a ride
 				stillAdding = true;
 				ArrayList<Ride> rides = new ArrayList<Ride>();
+				Ride ride = null;
 				while (stillAdding) {
 					// date, cost, vin, from hour, to hour
 					String rideDate;
@@ -623,8 +625,20 @@ public class testdriver2 {
 					String rideFromHour;
 					String rideToHour;
 					System.out.println("Please enter the date (YYYY-MM-DD) of your ride");
-					while ((rideDate = in.readLine()) == null || rideDate.length() == 0)
-						;
+					while (true) {
+						while ((rideDate = in.readLine()) == null || rideDate.length() == 0)
+							;
+						// check if valid date
+						SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+						format.setLenient(false);
+						try {
+					          format.parse(rideDate);
+					          break;
+					     }
+					     catch(Exception e){
+					    	 System.out.println("Incorrect date format");
+					     }
+					}
 					while (true) {
 						System.out.println("Please enter the cost of your ride (In dollars, no $, i.e. 20)");
 						while ((rideCost = in.readLine()) == null || rideCost.length() == 0)
@@ -671,9 +685,13 @@ public class testdriver2 {
 							continue;
 						}
 					}
-
-					rides.add(new Ride(Integer.parseInt(rideCost), rideDate, user.getLogin(), Integer.parseInt(rideVin),
-							Integer.parseInt(rideFromHour), Integer.parseInt(rideToHour)));
+					ride = user.recordRide(Integer.parseInt(rideCost), rideDate, Integer.parseInt(rideVin),
+							Integer.parseInt(rideFromHour), Integer.parseInt(rideToHour));
+					if (ride == null) {
+						System.out.println("Invalid ride, driver does not work during this time period");
+					} else {
+						rides.add(ride);
+					}
 					// remember that I give them the option to keep adding until satisfied
 					System.out.println("Are you done adding rides? (y/n)");
 					while ((input = in.readLine()) == null || (!input.equals("y") && !input.equals("n")))
@@ -705,7 +723,11 @@ public class testdriver2 {
 
 					switch (c) {
 					case 1:
-						user.submitRides(rides);
+						if (user.submitRides(rides)) {
+							System.out.println("Recorded rides submitted successfully");
+						} else {
+							System.out.println("Rides submission failed");
+						}
 						number = true;
 						break;
 					case 2:
@@ -773,14 +795,14 @@ public class testdriver2 {
 				System.out.println("Leave a comment if you'd like");
 				while ((feedbackComment = in.readLine()) == null || feedbackComment.length() == 0)
 					;
-				
+
 				if (user.leaveFeedback(Integer.parseInt(feedbackVin), Integer.parseInt(feedbackScore),
 						feedbackComment)) {
 					System.out.println("Feedback saved successfully");
 				} else {
 					System.out.println("Feedback could not be saved");
 				}
-				
+
 				break;
 			case 5:
 				// rate feedback usefulness
