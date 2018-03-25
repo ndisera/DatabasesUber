@@ -263,17 +263,16 @@ public class User extends UberUser {
 		String sql = "insert into ride (cost, date, login, vin, from_hour, to_hour) values";
 		Ride ride = null;
 		int rs = 0;
-		for (int i = 0; i < rides.size(); i++) {
+		for (int i = 0; i < rides.size() - 1; i++) {
 			ride = rides.get(i);
-			sql += String.format("(%d, '%s', '%s', %d, %d)", ride.cost, ride.date, this.getLogin(), ride.from_hour,
+			sql += String.format("(%d, '%s', '%s', %d, %d, %d),", ride.cost, ride.date, this.getLogin(), ride.vin, ride.from_hour,
 					ride.to_hour);
 		}
 		ride = rides.get(rides.size() - 1);
-		sql += String.format("(%d, '%s', '%s', %d, %d)", ride.cost, ride.date, this.getLogin(), ride.from_hour,
+		sql += String.format("(%d, '%s', '%s', %d, %d, %d);", ride.cost, ride.date, this.getLogin(), ride.vin, ride.from_hour,
 				ride.to_hour);
 		try {
-			this.getStmt().executeUpdate(sql);
-
+			rs = this.getStmt().executeUpdate(sql);
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
 			e.printStackTrace(System.out);

@@ -732,11 +732,11 @@ public class testdriver2 {
 						} else {
 							System.out.println("Rides submission failed");
 						}
-						number = true;
+						number = false;
 						break;
 					case 2:
 						System.out.println("Rides cancelled");
-						number = true;
+						number = false;
 						break;
 					default:
 						System.out.println("Your input didn't match any of the choices.");
