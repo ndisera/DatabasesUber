@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import com.mysql.jdbc.exceptions.*;
+
 /**
  * Provides all of the features for a user or "rider" of UUber.
  * 
@@ -345,9 +347,9 @@ public class User extends UberUser {
 			if (loginOutput.equals(this.getLogin()))
 				return "You cannot rate your own feedback.";
 
-		} catch (Exception e) {
+		}catch (Exception e) {
 			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+//			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rsLogin);
 		}
@@ -358,16 +360,17 @@ public class User extends UberUser {
 		// System.out.println("executing " + sql);
 		try {
 			rs = this.getStmt().executeUpdate(sql);
+			
 			if (rs > 0)
 				output = String.format("Feedback %d was rated %d by %s\n", fid, rating, this.getLogin());
 			else
 				output = "Rating couldn't be inserted.\n";
 
-		} catch (Exception e) {
+		}catch (Exception  e) {
+			System.out.println(e.getMessage());
 			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
 		}
-
+		
 		// System.out.println(output);
 		return output;
 	}
@@ -395,9 +398,9 @@ public class User extends UberUser {
 			else
 				output = "Something went wrong.\n";
 
-		} catch (Exception e) {
-			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+		}catch (Exception  e) {
+			System.out.println(e.getMessage());
+			System.out.println("cannot execute the query"); 
 		}
 
 		// System.out.println(output);
@@ -465,7 +468,7 @@ public class User extends UberUser {
 		try {
 			rs = this.getStmt().executeQuery(sql);
 			while (rs.next()) {
-				output += String.format("%d %s %s %s %f \n", rs.getInt("vin"), rs.getString("category"),
+				output += String.format("VIN: %d, Category: %s, Address: %s, Model: %s, Average Score: %f \n", rs.getInt("vin"), rs.getString("category"),
 						rs.getString("address"), rs.getString("model"), rs.getFloat("avg(score)"));
 			}
 
@@ -477,6 +480,8 @@ public class User extends UberUser {
 			freeResultSetResources(rs);
 		}
 
+		if (output.equals(""))
+			output = "No results found";
 		return output;
 	}
 
@@ -499,7 +504,7 @@ public class User extends UberUser {
 			rs = this.getStmt().executeQuery(sql);
 			int row = 0;
 			while (rs.next() && row < numberOfFeedbacks) {
-				output += String.format("%d %d %s %d %s \n", rs.getInt("fid"), rs.getInt("vin"), rs.getString("login"),
+				output += String.format("Feedback ID: %d, VIN:  %d, Login: %s, Score: %d, Text: %s \n", rs.getInt("fid"), rs.getInt("vin"), rs.getString("login"),
 						rs.getInt("score"), rs.getString("text"));
 				row++;
 			}
@@ -511,7 +516,9 @@ public class User extends UberUser {
 		} finally {
 			freeResultSetResources(rs);
 		}
-
+		
+		if (output.equals(""))
+			output = "No results found";
 		return output;
 	}
 
@@ -523,16 +530,17 @@ public class User extends UberUser {
 	 */
 	public String getCarSuggestions(int vin) {
 		String sql = String.format(
-				"select r.vin from uc, reserve r, uu " + "where uc.vin = r.vin and r.login = uu.login and r.login in "
-						+ "(select login from reserve where vin = %d) group by r.vin order by count(*) desc",
-				vin);
+				"select r.vin, count(rd.rid) as totalRides from ride rd right outer join reserve r on rd.vin=r.vin"
+				+ " where r.vin <> %d and r.login in"
+				+ " (select login from reserve where vin = %d) group by r.vin order by count(rd.rid) desc",
+				vin, vin);
 		String output = "";
 		ResultSet rs = null;
 		// System.out.println("executing " + sql);
 		try {
 			rs = this.getStmt().executeQuery(sql);
 			while (rs.next()) {
-				output += String.format("%d \n", rs.getInt("vin"));
+				output += String.format("VIN: %d, Total Rides:  %d \n", rs.getInt("vin"), rs.getInt("totalRides"));
 			}
 
 			rs.close();
@@ -543,6 +551,8 @@ public class User extends UberUser {
 			freeResultSetResources(rs);
 		}
 
+		if (output.equals(""))
+			output = "No results found";
 		return output;
 	}
 
@@ -645,7 +655,7 @@ public class User extends UberUser {
 			try {
 				rs = this.getStmt().executeQuery(sql);
 				while (rs.next()) {
-					output += String.format(" %d  %s %d \n", rs.getInt("vin"), rs.getString("category"),
+					output += String.format("VIN: %d, Category:  %s, Total Rides: %d \n", rs.getInt("vin"), rs.getString("category"),
 							rs.getInt("totalRides"));
 				}
 
@@ -658,6 +668,8 @@ public class User extends UberUser {
 			}
 		}
 
+		if (output.equals(""))
+			output = "No results found";
 		return output;
 	}
 
@@ -681,7 +693,7 @@ public class User extends UberUser {
 			try {
 				rs = this.getStmt().executeQuery(sql);
 				while (rs.next()) {
-					output += String.format(" %d  %s %f \n", rs.getInt("vin"), rs.getString("category"),
+					output += String.format("VIN: %d, Category:  %s, Average Cost: %f \n", rs.getInt("vin"), rs.getString("category"),
 							rs.getFloat("avgCost"));
 				}
 
@@ -694,6 +706,8 @@ public class User extends UberUser {
 			}
 		}
 
+		if (output.equals(""))
+			output = "No results found";
 		return output;
 	}
 
@@ -717,7 +731,7 @@ public class User extends UberUser {
 			try {
 				rs = this.getStmt().executeQuery(sql);
 				while (rs.next()) {
-					output += String.format(" %s  %s %f \n", rs.getString("login"), rs.getString("category"),
+					output += String.format("Login: %s, Category:  %s, Average Score: %f \n", rs.getString("login"), rs.getString("category"),
 							rs.getFloat("avgScore"));
 				}
 
@@ -730,6 +744,8 @@ public class User extends UberUser {
 			}
 		}
 
+		if (output.equals(""))
+			output = "No results found";
 		return output;
 	}
 

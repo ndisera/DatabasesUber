@@ -863,7 +863,7 @@ public class testdriver2 {
 				while ((category = in.readLine()) == null)
 					;
 
-				System.out.println("Please enter car's address or leave it blank");
+				System.out.println("Please enter address or leave it blank");
 				String address;
 				while ((address = in.readLine()) == null)
 					;
