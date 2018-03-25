@@ -335,7 +335,7 @@ public class User extends UberUser {
 				return true;
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+			System.out.println(e.getMessage());
 		}
 		return false;
 	}
