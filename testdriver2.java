@@ -975,6 +975,7 @@ public class testdriver2 {
 			case 11:
 				// get statistics
 				displayStats();
+				try {
 				while ((input = in.readLine()) == null || input.length() == 0)
 					;
 				switch (Integer.parseInt(input)) {
@@ -1002,6 +1003,12 @@ public class testdriver2 {
 				default:
 					System.out.println("Your input didn't match any of the choices");
 					break;
+				}
+				}
+				catch (NumberFormatException e)
+				{
+					System.out.println("Wrong input inserted");
+					System.out.println(e.getMessage());
 				}
 				break;
 			case 12:

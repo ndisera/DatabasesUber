@@ -65,16 +65,16 @@ public class Admin {
 	 * @return output -> string that contains the most trusted users
 	 */
 	public String getMostTrustedUsers(int m) {
-		String sql = String.format("select t.login1, count(t.login2)-(select count(t1.login2) from trust t1 "
-				+ "where t1.is_Trusted=0 and t1.login1=t.login1) as totalTrustees "
-				+ "from trust t group by t.login1 order by totalTrustees desc limit %d", m);
+		String sql = String.format("select t.login2, count(t.login1)-(select count(t1.login1) from trust t1 "
+				+ "where t1.is_Trusted=0 and t1.login2=t.login2) as totalTrustees "
+				+ "from trust t group by t.login2 order by totalTrustees desc limit %d", m);
 		String output = "";
 		ResultSet rs = null;
 //		System.out.println("executing " + sql);
 		try {
 			rs = stmt.executeQuery(sql);
 			while (rs.next()) {
-				output += String.format(" %s %d \n", rs.getString("login1"), rs.getInt("totalTrustees"));
+				output += String.format(" %s %d \n", rs.getString("login2"), rs.getInt("totalTrustees"));
 			}
 
 			rs.close();

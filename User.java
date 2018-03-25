@@ -565,17 +565,17 @@ public class User extends UberUser {
 	 */
 	public String getCarSuggestions(int vin) {
 		String sql = String.format(
-				"select r.vin, count(rd.rid) as totalRides from ride rd right outer join reserve r on rd.vin=r.vin"
-				+ " where r.vin <> %d and r.login in"
-				+ " (select login from reserve where vin = %d) group by r.vin order by count(rd.rid) desc",
-				vin, vin);
+				"select rs.vin, count(distinct rd.rid) as totalRides from ride rd right outer join reserve rs on rd.vin=rs.vin"
+				+ " where rs.vin <> %d and rs.login in"
+				+ " (select login from reserve where vin = %d and login<>'%s') group by rs.vin order by count(distinct rd.rid) desc",
+				vin, vin, this.getLogin());
 		String output = "";
 		ResultSet rs = null;
 		// System.out.println("executing " + sql);
 		try {
 			rs = this.getStmt().executeQuery(sql);
 			while (rs.next()) {
-				output += String.format("VIN: %d, Total Rides:  %d \n", rs.getInt("vin"), rs.getInt("totalRides"));
+				output += String.format("VIN: %d, Total Rides: %d \n", rs.getInt("vin"), rs.getInt("totalRides"));
 			}
 
 			rs.close();
