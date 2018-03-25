@@ -518,8 +518,6 @@ public class testdriver2 {
 			switch (c) {
 			case 1:
 				// make a reservation
-				// delete all of the reservations that have expired
-				user.deleteReservations();
 				boolean stillAdding = true;
 				String reservationDate;
 				String reservationTime;

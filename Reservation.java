@@ -11,12 +11,14 @@ public class Reservation {
 	public int pid;
 	public int cost;
 	public String date; // datetime
+	public String operation; // update or insert
 	
-	public Reservation(String login, int vin, int pid, int cost, String date) {
+	public Reservation(String login, int vin, int pid, int cost, String date, String operation) {
 		this.login = login;
 		this.vin = vin;
 		this.pid = pid;
 		this.cost = cost;
 		this.date = date;
+		this.operation = operation;
 	}
 }
