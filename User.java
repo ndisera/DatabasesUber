@@ -558,6 +558,34 @@ public class User extends UberUser {
 	}
 
 	/**
+	 * @return return String variable -> outputs all feedbacks 
+	 */
+	public String getFeedbacks() {
+		String sql = "select * from feedback";
+		String output = "";
+		ResultSet rs = null;	
+		// System.out.println("executing " + sql);
+		try {
+			rs = this.getStmt().executeQuery(sql);
+			while (rs.next()) {
+				output += String.format("%d. VIN: %d, Login: %s, Score: %d, "
+						+ "Text: %s \n", rs.getInt("fid"), rs.getInt("vin"), rs.getString("login"), rs.getInt("score"), rs.getString("text"));
+			}
+			rs.close();
+		} catch (Exception e) {
+			System.out.println("cannot execute the query");
+			e.printStackTrace(System.out);
+		} finally {
+			freeResultSetResources(rs);
+		}
+
+		if (output.equals(""))
+			output = "No results found";
+		
+		return output;
+	}
+	
+	/**
 	 * @param vin
 	 *            int variable representing the car that was just reserved
 	 * @return return String variable that outputs all the suggested cars based on

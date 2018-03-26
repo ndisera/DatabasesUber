@@ -830,10 +830,13 @@ public class testdriver2 {
 
 				break;
 			case 5:
+				// show all feedbacks 
+				String allFeedbacks = user.getFeedbacks();
+				System.out.println(allFeedbacks);
 				// rate feedback usefulness
 				int fid, rating;
 				try {
-					System.out.println("Please enter the feedback fid you want to rate:");
+					System.out.println("Please enter the feedback number you want to rate:");
 					while ((input = in.readLine()) == null || input.length() == 0)
 						;
 					fid = Integer.parseInt(input);
