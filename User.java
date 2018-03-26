@@ -62,7 +62,8 @@ public class User extends UberUser {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+			System.out.println(e.getMessage());
+//			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rs);
 		}
@@ -89,7 +90,8 @@ public class User extends UberUser {
 
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+			System.out.println(e.getMessage());
+//			e.printStackTrace(System.out);
 		}
 
 		if (rs > 0) {
@@ -129,7 +131,8 @@ public class User extends UberUser {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+			System.out.println(e.getMessage());
+//			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rs);
 		}
@@ -184,7 +187,8 @@ public class User extends UberUser {
 			rs = this.getStmt().executeUpdate(sql);
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+			System.out.println(e.getMessage());
+//			e.printStackTrace(System.out);
 		}
 		val = rs > 0 ? true : false;
 		return val;
@@ -224,7 +228,8 @@ public class User extends UberUser {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+			System.out.println(e.getMessage());
+//			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rs);
 		}
@@ -256,7 +261,8 @@ public class User extends UberUser {
 			rs = this.getStmt().executeUpdate(sql);
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+			System.out.println(e.getMessage());
+//			e.printStackTrace(System.out);
 		}
 		boolean val = rs > 0 ? true : false;
 		return val;
@@ -455,7 +461,8 @@ public class User extends UberUser {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+			System.out.println(e.getMessage());
+//			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rs);
 		}
@@ -493,7 +500,8 @@ public class User extends UberUser {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+			System.out.println(e.getMessage());
+//			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rs);
 		}
@@ -520,7 +528,8 @@ public class User extends UberUser {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+			System.out.println(e.getMessage());
+//			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rs);
 		}
@@ -555,7 +564,8 @@ public class User extends UberUser {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+			System.out.println(e.getMessage());
+//			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rs);
 		}
@@ -591,7 +601,8 @@ public class User extends UberUser {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+			System.out.println(e.getMessage());
+//			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rs);
 		}
@@ -611,7 +622,8 @@ public class User extends UberUser {
 			rsSecondDegree.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+			System.out.println(e.getMessage());
+//			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rsSecondDegree);
 		}
@@ -636,7 +648,8 @@ public class User extends UberUser {
 			rs.close();
 		} catch (Exception e) {
 			System.out.println("cannot execute the query");
-			e.printStackTrace(System.out);
+			System.out.println(e.getMessage());
+//			e.printStackTrace(System.out);
 		} finally {
 			freeResultSetResources(rs);
 		}
@@ -671,7 +684,8 @@ public class User extends UberUser {
 				rs.close();
 			} catch (Exception e) {
 				System.out.println("cannot execute the query");
-				e.printStackTrace(System.out);
+				System.out.println(e.getMessage());
+//				e.printStackTrace(System.out);
 			} finally {
 				freeResultSetResources(rs);
 			}
@@ -709,7 +723,8 @@ public class User extends UberUser {
 				rs.close();
 			} catch (Exception e) {
 				System.out.println("cannot execute the query");
-				e.printStackTrace(System.out);
+				System.out.println(e.getMessage());
+//				e.printStackTrace(System.out);
 			} finally {
 				freeResultSetResources(rs);
 			}
@@ -747,7 +762,8 @@ public class User extends UberUser {
 				rs.close();
 			} catch (Exception e) {
 				System.out.println("cannot execute the query");
-				e.printStackTrace(System.out);
+				System.out.println(e.getMessage());
+//				e.printStackTrace(System.out);
 			} finally {
 				freeResultSetResources(rs);
 			}
